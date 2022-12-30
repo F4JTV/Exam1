@@ -1,0 +1,33 @@
+QMainWindow {
+    background-color: #333333;
+}
+
+QToolButton {
+    background: qlineargradient( x1:0.5 y1:0, x2:0.5 y2:1, stop:0 #7d95b7, stop:1 #496b99);
+    color: white;
+}
+
+QToolButton:hover {
+    background: qlineargradient( x1:0.5 y1:0, x2:0.5 y2:1, stop:0 #7d95d7, stop:1 #496bd9);
+}
+
+QToolButton:pressed {
+    background: qlineargradient( x1:0.5 y1:0, x2:0.5 y2:1, stop:0 #9d95d7, stop:1 #796bd9);
+}
+
+#TitleLabel {
+    color: white;
+}
+
+#SubTitleLabel {
+    color: white;
+}
+
+QMenu::item {
+    padding: 2px 5px 2px 2px;
+}
+
+QMenu::item:selected {
+    background-color: rgb(0, 85, 127);
+    color: rgb(255, 255, 255);
+}
