@@ -7,8 +7,16 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (QMainWindow, QMenuBar, QMenu, QAction,
                              QHBoxLayout, QLabel, QMessageBox, QWidget)
 
-from modules.constants import *
 from modules.management_win import *
+
+VERSION = "v122422"
+APP_NAME = "Exam'1"
+TITLE = f"{APP_NAME} - {VERSION}"
+WIDTH = 800
+HEIGHT = 400
+MAIN_FONT = QFont("Lato", 10)
+MAIN_BTN_FONT = QFont("Lato", 12)
+MAIN_BTN_SIZE = QSize(115, 170)
 
 
 class MainWindow(QMainWindow):
