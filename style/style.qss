@@ -32,6 +32,50 @@ QMenu::item:selected {
     color: rgb(255, 255, 255);
 }
 
-ManagementWindow {
+UsersManagementWindow {
+    background-color: #333333;
+}
+
+TestsListWindow {
+    background-color: #333333;
+}
+
+UsersTestsListWindow {
+    background-color: #333333;
+}
+
+UsersTestsTrialListWindow {
+    background-color: #333333;
+}
+
+ProgressUsersTrialWindow {
+    background-color: #333333;
+}
+
+UsersListWindow {
+    background-color: #333333;
+}
+
+ErrorsManagementWindow {
+    background-color: #333333;
+}
+
+UsersErrorsListWindow {
+    background-color: #333333;
+}
+
+ErrorsListWindow {
+    background-color: #333333;
+}
+
+AskedQuestionsWindow {
+    background-color: #333333;
+}
+
+AllQuestionsWindow {
+    background-color: #333333;
+}
+
+ContributeWindow {
     background-color: #333333;
 }

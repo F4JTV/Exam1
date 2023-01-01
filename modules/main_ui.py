@@ -1,15 +1,21 @@
-""" Main UI Window """
+""" Main UI """
 import sys
 import webbrowser
+from datetime import datetime
 
-from PyQt5.QtCore import QTimer, pyqtSignal
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QTimer, pyqtSignal, Qt, QSize
+from PyQt5.QtGui import QPixmap, QIcon, QFont, QCloseEvent
 from PyQt5.QtWidgets import (QMainWindow, QMenuBar, QMenu, QAction,
-                             QHBoxLayout, QLabel, QMessageBox, QWidget)
+                             QHBoxLayout, QLabel, QMessageBox, QWidget,
+                             QVBoxLayout, QToolButton)
 
-from modules.management_win import *
+from modules.users_management import UsersManagementWindow
+from modules.errors_management import ErrorsManagementWindow
+from modules.asked_questions import AskedQuestionsWindow
+from modules.all_questions import AllQuestionsWindow
+from modules.contribute import ContributeWindow
 
-VERSION = "v122422"
+VERSION = datetime.now().strftime("v%m%d%y")
 APP_NAME = "Exam'1"
 TITLE = f"{APP_NAME} - {VERSION}"
 WIDTH = 800
@@ -33,10 +39,13 @@ class MainWindow(QMainWindow):
 
         # ### Variables
         self.opacity = 0
-        self.management_win = None
+        self.users_management_win = None
+        self.errors_management_win = None
+        self.asked_questions_win = None
+        self.all_questions_win = None
+        self.contribute_win = None
 
         # ### Central Widget
-        # noinspection PyArgumentList
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
 
@@ -85,7 +94,7 @@ class MainWindow(QMainWindow):
         self.manage_users_btn.setIcon(QIcon("./images/manage_users.png"))
         self.manage_users_btn.setIconSize(QSize(100, 100))
         self.manage_users_btn.setText("Gestion des\npoints et\ncandidats")
-        self.manage_users_btn.clicked.connect(lambda: self.display_management_win())
+        self.manage_users_btn.clicked.connect(self.display_users_management_win)
 
         self.manage_errors_btn = QToolButton()
         self.manage_errors_btn.setFixedSize(MAIN_BTN_SIZE)
@@ -94,7 +103,7 @@ class MainWindow(QMainWindow):
         self.manage_errors_btn.setIcon(QIcon("./images/manage_errors.png"))
         self.manage_errors_btn.setIconSize(QSize(100, 100))
         self.manage_errors_btn.setText("Gestion des\nerreurs")
-        self.manage_errors_btn.clicked.connect(lambda: print("Gestion des erreurs"))
+        self.manage_errors_btn.clicked.connect(self.display_errors_management_win)
 
         self.asked_questions_btn = QToolButton()
         self.asked_questions_btn.setFixedSize(MAIN_BTN_SIZE)
@@ -103,7 +112,7 @@ class MainWindow(QMainWindow):
         self.asked_questions_btn.setIcon(QIcon("./images/asked_questions.png"))
         self.asked_questions_btn.setIconSize(QSize(100, 100))
         self.asked_questions_btn.setText("Questions\nposées")
-        self.asked_questions_btn.clicked.connect(lambda: print("Questions posées"))
+        self.asked_questions_btn.clicked.connect(self.display_asked_questions_win)
 
         self.show_questions_btn = QToolButton()
         self.show_questions_btn.setFixedSize(MAIN_BTN_SIZE)
@@ -112,7 +121,7 @@ class MainWindow(QMainWindow):
         self.show_questions_btn.setIcon(QIcon("./images/show_questions.png"))
         self.show_questions_btn.setIconSize(QSize(100, 100))
         self.show_questions_btn.setText("Visu des\nquestions")
-        self.show_questions_btn.clicked.connect(lambda: print("Visu des questions"))
+        self.show_questions_btn.clicked.connect(self.display_all_questions_win)
 
         self.contribute_btn = QToolButton()
         self.contribute_btn.setFixedSize(MAIN_BTN_SIZE)
@@ -121,7 +130,7 @@ class MainWindow(QMainWindow):
         self.contribute_btn.setIcon(QIcon("./images/contribute.png"))
         self.contribute_btn.setIconSize(QSize(100, 100))
         self.contribute_btn.setText("Contribuez à\nl'amélioration\nd'Exam'1")
-        self.contribute_btn.clicked.connect(lambda: print("Contribuez"))
+        self.contribute_btn.clicked.connect(self.display_contribute_win)
 
         self.buttons_layout.addWidget(self.start_test_btn, 1, Qt.AlignmentFlag.AlignJustify)
         self.buttons_layout.addWidget(self.manage_users_btn, 1, Qt.AlignmentFlag.AlignJustify)
@@ -162,13 +171,45 @@ class MainWindow(QMainWindow):
         # noinspection PyUnresolvedReferences
         self.opacity_timer_close.timeout.connect(self.down_opacity)
 
-    def display_management_win(self):
+    def display_users_management_win(self):
         """ Display Management Window """
-        if self.management_win is not None:
-            self.management_win.close()
+        if self.users_management_win is not None:
+            self.users_management_win.close()
         else:
-            self.management_win = ManagementWindow(self)
-            self.management_win.show()
+            self.users_management_win = UsersManagementWindow(self)
+            self.users_management_win.show()
+
+    def display_errors_management_win(self):
+        """ Display Management Window """
+        if self.errors_management_win is not None:
+            self.errors_management_win.close()
+        else:
+            self.errors_management_win = ErrorsManagementWindow(self)
+            self.errors_management_win.show()
+
+    def display_asked_questions_win(self):
+        """ Display Management Window """
+        if self.asked_questions_win is not None:
+            self.asked_questions_win.close()
+        else:
+            self.asked_questions_win = AskedQuestionsWindow(self)
+            self.asked_questions_win.show()
+
+    def display_all_questions_win(self):
+        """ Display Management Window """
+        if self.all_questions_win is not None:
+            self.all_questions_win.close()
+        else:
+            self.all_questions_win = AllQuestionsWindow(self)
+            self.all_questions_win.show()
+
+    def display_contribute_win(self):
+        """ Display Management Window """
+        if self.contribute_win is not None:
+            self.contribute_win.close()
+        else:
+            self.contribute_win = ContributeWindow(self)
+            self.contribute_win.show()
 
     def up_opacity(self):
         """ Up the opacity """

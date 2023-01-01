@@ -1,20 +1,19 @@
-#!/usr/bin/python3
-""" Management Window """
+""" Users Management Window """
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QCloseEvent, QFont
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QToolButton
 
 
-class ManagementWindow(QDialog):
-    """ Management Window """
+class UsersManagementWindow(QDialog):
+    """ Users Management Window """
 
     def __init__(self, master):
         super().__init__()
         self.master = master
 
         # Variables
-        self.btn_size = QSize(380, 60)
-        self.btn_font = QFont("Lato", 14)
+        self.btn_size = QSize(370, 60)
+        self.btn_font = QFont("Lato", 12)
 
         self.test_list_win = None
         self.users_test_list_win = None
@@ -22,7 +21,7 @@ class ManagementWindow(QDialog):
         self.progress_users_trial_win = None
         self.users_list_win = None
 
-        # ### Main Window config
+        # ### Window config
         self.setFixedSize(400, 380)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle("Gestion des épreuves")
@@ -79,7 +78,7 @@ class ManagementWindow(QDialog):
             return
         else:
             self.hide()
-            self.users_list_win = ManagementWindow.UsersListWindow(self)
+            self.users_list_win = UsersManagementWindow.UsersListWindow(self)
             self.users_list_win.show()
 
     def display_progress_users_trial_win(self):
@@ -88,7 +87,7 @@ class ManagementWindow(QDialog):
             return
         else:
             self.hide()
-            self.progress_users_trial_win = ManagementWindow.ProgressUsersTrialWindow(self)
+            self.progress_users_trial_win = UsersManagementWindow.ProgressUsersTrialWindow(self)
             self.progress_users_trial_win.show()
 
     def display_users_tests_trial_list_win(self):
@@ -97,7 +96,7 @@ class ManagementWindow(QDialog):
             return
         else:
             self.hide()
-            self.users_tests_trial_list_win = ManagementWindow.UsersTestsTrialListWindow(self)
+            self.users_tests_trial_list_win = UsersManagementWindow.UsersTestsTrialListWindow(self)
             self.users_tests_trial_list_win.show()
 
     def display_users_tests_list(self):
@@ -106,7 +105,7 @@ class ManagementWindow(QDialog):
             return
         else:
             self.hide()
-            self.users_test_list_win = ManagementWindow.UsersTestsListWindow(self)
+            self.users_test_list_win = UsersManagementWindow.UsersTestsListWindow(self)
             self.users_test_list_win.show()
 
     def display_tests_list(self):
@@ -115,12 +114,12 @@ class ManagementWindow(QDialog):
             return
         else:
             self.hide()
-            self.test_list_win = ManagementWindow.TestsListWindow(self)
+            self.test_list_win = UsersManagementWindow.TestsListWindow(self)
             self.test_list_win.show()
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
-        self.master.management_win = None
+        self.master.users_management_win = None
 
 
     class TestsListWindow(QDialog):
