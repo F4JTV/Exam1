@@ -79,3 +79,12 @@ AllQuestionsWindow {
 ContributeWindow {
     background-color: #333333;
 }
+
+TestLauncherWindow {
+    background-color: #333333;
+}
+
+QTableView::item {
+    color: white;
+    background-color: #333333;
+}

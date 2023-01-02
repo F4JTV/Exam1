@@ -14,6 +14,7 @@ from modules.errors_management import ErrorsManagementWindow
 from modules.asked_questions import AskedQuestionsWindow
 from modules.all_questions import AllQuestionsWindow
 from modules.contribute import ContributeWindow
+from modules.test import TestLauncherWindow
 
 VERSION = datetime.now().strftime("v%m%d%y")
 APP_NAME = "Exam'1"
@@ -39,6 +40,7 @@ class MainWindow(QMainWindow):
 
         # ### Variables
         self.opacity = 0
+        self.test_launcher_win = None
         self.users_management_win = None
         self.errors_management_win = None
         self.asked_questions_win = None
@@ -85,7 +87,7 @@ class MainWindow(QMainWindow):
         self.start_test_btn.setIcon(QIcon("./images/start_test.png"))
         self.start_test_btn.setIconSize(QSize(100, 100))
         self.start_test_btn.setText("Démarrer un\nquestionnaire")
-        self.start_test_btn.clicked.connect(lambda: print("Démarrer un questionnaire"))
+        self.start_test_btn.clicked.connect(self.display_test_launcher_win)
 
         self.manage_users_btn = QToolButton()
         self.manage_users_btn.setFixedSize(MAIN_BTN_SIZE)
@@ -211,6 +213,14 @@ class MainWindow(QMainWindow):
             self.contribute_win = ContributeWindow(self)
             self.contribute_win.show()
 
+    def display_test_launcher_win(self):
+        """ Display Management Window """
+        if self.test_launcher_win is not None:
+            self.test_launcher_win.close()
+        else:
+            self.test_launcher_win = TestLauncherWindow(self)
+            self.test_launcher_win.show()
+
     def up_opacity(self):
         """ Up the opacity """
         if self.opacity >= 1.00:
@@ -242,6 +252,7 @@ class MainWindow(QMainWindow):
         if rep == dialog.StandardButton.Yes:
             QCloseEvent.ignore(event)
             self.opacity_timer_close.start()
+
             return
         elif rep == dialog.StandardButton.No:
             QCloseEvent.ignore(event)
