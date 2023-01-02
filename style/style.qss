@@ -88,3 +88,18 @@ QTableView::item {
     color: white;
     background-color: #333333;
 }
+
+QTableView::item:selected {
+    color: white;
+    background-color: #222222;
+}
+
+QTableView::item:hover {
+    color: white;
+    background-color: #222222;
+}
+
+QHeaderView::section {
+    color: white;
+    background-color: #333333;
+}
