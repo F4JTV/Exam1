@@ -5,7 +5,8 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QCloseEvent, QFont, QPixmap
 from PyQt5.QtWidgets import (QHBoxLayout, QTableWidget, QWidget,
                              QTableWidgetItem, QHeaderView, QVBoxLayout,
-                             QLabel, QGroupBox, QPushButton, QScrollBar, QGridLayout)
+                             QLabel, QGroupBox, QPushButton, QScrollBar,
+                             QGridLayout)
 
 
 class AllQuestionsWindow(QWidget):
@@ -142,7 +143,7 @@ class AllQuestionsWindow(QWidget):
                 209: "Transformateurs, ampli op, filtres RC LC RLC",
                 205: "Rôle des différents étages RF, haut-parleur, micro",
                 203: "Diodes et transistors, classes d'amplification",
-                210: "Antennes, couplage, propagation, ligne de transmis",
+                210: "Antennes, couplage, propagation, ligne de transmission",
                 204: "Synoptiques d'émetteurs et de récepteurs",
                 201: "Code des couleurs des résistances",
                 304: "Table d'épellation internationale",

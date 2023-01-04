@@ -27,7 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 QLabel
 {
 	background-color: transparent;
-	color: #fff;
+	color: black;
 
 }
 
@@ -974,7 +974,6 @@ QProgressBar
 
 }
 
-
 QProgressBar::chunk
 {
     background-color: #46a2da;
@@ -985,23 +984,6 @@ QProgressBar::chunk
 
 /*-----QMainWIndow-----*/
 QMainWindow {
-    background-color: #333333;
-}
-
-
-QMessageBox {
-    background-color: #333333;
-}
-
-UsersManagementWindow {
-    background-color: #333333;
-}
-
-ErrorsManagementWindow {
-    background-color: #333333;
-}
-
-AskedQuestionsWindow {
     background-color: #333333;
 }
 
