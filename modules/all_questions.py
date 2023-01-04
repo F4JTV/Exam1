@@ -4,7 +4,8 @@ import json
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QCloseEvent, QFont, QPixmap
 from PyQt5.QtWidgets import (QDialog, QHBoxLayout, QTableWidget,
-                             QTableWidgetItem, QHeaderView, QVBoxLayout, QLabel, QGroupBox, QPushButton)
+                             QTableWidgetItem, QHeaderView, QVBoxLayout,
+                             QLabel, QGroupBox, QPushButton, QScrollBar)
 
 
 class AllQuestionsWindow(QDialog):
@@ -19,14 +20,14 @@ class AllQuestionsWindow(QDialog):
         self.question_win = None
 
         # ### Window config
-        self.setFixedSize(800, 560)
+        self.setFixedSize(800, 570)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle("Liste complète des questions")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
         self.setModal(True)
         x = self.master.geometry().x() + self.master.width() // 2 - self.width() // 2
         y = self.master.geometry().y() + self.master.height() // 2 - self.height() // 2
-        self.setGeometry(x, y, 800, 580)
+        self.setGeometry(x, y, 800, 570)
 
         # Main Layout
         self.main_layout = QHBoxLayout()
@@ -34,7 +35,7 @@ class AllQuestionsWindow(QDialog):
 
         # Main layout Widgets
         self.questions_table = QTableWidget()
-        self.questions_table.setFixedSize(QSize(780, 539))
+        self.questions_table.setFixedSize(QSize(780, 549))
         self.questions_table.setSortingEnabled(False)
         self.questions_table.setColumnCount(2)
         self.questions_table.horizontalHeader().setStretchLastSection(True)
@@ -47,6 +48,10 @@ class AllQuestionsWindow(QDialog):
         self.questions_table.setHorizontalHeaderItem(0, self.num_header)
         self.questions_table.setHorizontalHeaderItem(1, self.quest_header)
         self.questions_table.verticalHeader().setVisible(False)
+        self.questions_table.setAlternatingRowColors(True)
+        self.questions_table_scrollbar = QScrollBar()
+        self.questions_table_scrollbar.setObjectName("QuestionScrollBar")
+        self.questions_table.setVerticalScrollBar(self.questions_table_scrollbar)
 
         self.main_layout.addWidget(self.questions_table, 1, Qt.AlignmentFlag.AlignCenter)
         self.create_questions_table()
@@ -89,7 +94,7 @@ class AllQuestionsWindow(QDialog):
                     quest = question["question"]
                     num_item = QTableWidgetItem(num)
                     quest_item = QTableWidgetItem(quest)
-                    num_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                    # num_item.setFlags(Qt.ItemIsEnabled)
                     quest_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                     num_item.setTextAlignment(Qt.AlignCenter)
                     quest_item.setTextAlignment(Qt.AlignCenter)
@@ -152,14 +157,15 @@ class AllQuestionsWindow(QDialog):
             }
 
             # ### Window config
-            self.setFixedSize(800, 700)
+            self.setFixedWidth(800)
+            self.setFixedHeight(800)
             self.setWindowFlags(Qt.WindowCloseButtonHint)
             self.setWindowTitle(f"Question numéro: {self.num}")
             self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
             self.setModal(True)
             x = self.master.master.geometry().x() + self.master.master.width() // 2 - self.width() // 2
             y = self.master.master.geometry().y() + self.master.master.height() // 2 - self.height() // 2
-            self.setGeometry(x, y, 800, 700)
+            self.setGeometry(x, y, 800, 800)
 
             # Main Layout
             self.main_layout = QVBoxLayout()
@@ -167,6 +173,7 @@ class AllQuestionsWindow(QDialog):
 
             # Image Label
             self.img_label = QLabel()
+            self.img_label.setFixedSize(770, 350)
             self.img_label.setPixmap(QPixmap(f"./questions/{num}.png"))
             self.main_layout.addWidget(self.img_label, 5, Qt.AlignCenter)
 
@@ -184,6 +191,11 @@ class AllQuestionsWindow(QDialog):
             self.response_label = QLabel(f"Réponse: {str(int(self.reponse) + 1)}")
             self.family_num_label = QLabel(f"Num Famille: {self.theme_num}")
             self.family_label = QLabel(f"Famille: {self.themes[self.theme_num]}")
+
+            self.num_quest_label.setObjectName("WhiteLabel")
+            self.response_label.setObjectName("WhiteLabel")
+            self.family_label.setObjectName("WhiteLabel")
+            self.family_num_label.setObjectName("WhiteLabel")
 
             self.num_quest_label.setWordWrap(True)
             self.response_label.setWordWrap(True)
@@ -204,6 +216,7 @@ class AllQuestionsWindow(QDialog):
                 self.comment_label = QLabel(f"{self.cours}")
             else:
                 self.comment_label = QLabel(f"{self.commentaire}\n{self.cours}")
+            self.comment_label.setObjectName("WhiteLabel")
             self.comment_label.setWordWrap(True)
             self.comment_group.setLayout(self.comment_layout)
             self.comment_layout.addWidget(self.comment_label, 1)
@@ -219,6 +232,10 @@ class AllQuestionsWindow(QDialog):
             self.choice_2 = QLabel(f"Choix 2:\t {self.propositions[1]}")
             self.choice_3 = QLabel(f"Choix 3:\t {self.propositions[2]}")
             self.choice_4 = QLabel(f"Choix 4:\t {self.propositions[3]}")
+            self.choice_1.setObjectName("WhiteLabel")
+            self.choice_2.setObjectName("WhiteLabel")
+            self.choice_3.setObjectName("WhiteLabel")
+            self.choice_4.setObjectName("WhiteLabel")
             self.responses_layout.addWidget(self.choice_1, 1, Qt.AlignLeft)
             self.responses_layout.addWidget(self.choice_2, 1, Qt.AlignLeft)
             self.responses_layout.addWidget(self.choice_3, 1, Qt.AlignLeft)

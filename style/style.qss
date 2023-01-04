@@ -3,16 +3,16 @@ QMainWindow {
 }
 
 QToolButton {
-    background: qlineargradient( x1:0.5 y1:0, x2:0.5 y2:1, stop:0 #7d95b7, stop:1 #496b99);
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #7d95b7, stop:1 #496b99);
     color: white;
 }
 
 QToolButton:hover {
-    background: qlineargradient( x1:0.5 y1:0, x2:0.5 y2:1, stop:0 #7d95d7, stop:1 #496bd9);
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #7d95d7, stop:1 #496bd9);
 }
 
 QToolButton:pressed {
-    background: qlineargradient( x1:0.5 y1:0, x2:0.5 y2:1, stop:0 #9d95d7, stop:1 #796bd9);
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #9d95d7, stop:1 #796bd9);
 }
 
 #TitleLabel {
@@ -84,22 +84,104 @@ TestLauncherWindow {
     background-color: #333333;
 }
 
-/*QTableView::item {
+QTableView {
     color: white;
     background-color: #333333;
+    alternate-background-color: #404040;
 }
 
 QTableView::item:selected {
     color: white;
-    background-color: #222222;
+    background-color: #404050;
 }
 
 QTableView::item:hover {
     color: white;
-    background-color: #222222;
+    background-color: #404050;
 }
 
 QHeaderView::section {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #616161, stop: 0.5 #505050,
+                                      stop: 0.6 #434343, stop:1 #656565);
     color: white;
-    background-color: #333333;
-}*/
+    padding-left: 4px;
+    border: 1px solid #6c6c6c;
+}
+
+QHeaderView::section:checked
+{
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #717171, stop: 0.5 #606060,
+                                      stop: 0.6 #535353, stop:1 #757575);
+}
+
+#QuestionScrollBar:vertical {
+     border: 2px solid grey;
+     background: #404040;
+     width: 15px;
+     margin: 22px 0 22px 0;
+}
+
+#QuestionScrollBar::handle:vertical {
+     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #717171, stop: 0.5 #606060,
+                                      stop: 0.6 #535353, stop:1 #757575);
+     min-height: 20px;
+}
+
+#QuestionScrollBar::add-line:vertical {
+     border: 2px solid grey;
+     background: #404040;
+     height: 20px;
+     subcontrol-position: bottom;
+     subcontrol-origin: margin;
+}
+
+#QuestionScrollBar::sub-line:vertical {
+     border: 2px solid grey;
+     background: #404040;
+     height: 20px;
+     subcontrol-position: top;
+     subcontrol-origin: margin;
+}
+
+#QuestionScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+     border: 2px solid grey;
+     width: 3px;
+     height: 3px;
+     background: white;
+}
+
+#QuestionScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     background: none;
+}
+
+QuestionWindow {
+    background: #404040;
+}
+
+QGroupBox::title {
+    color: white;
+}
+
+#WhiteLabel {
+    color: white;
+}
+
+QPushButton {
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #7d95b7, stop:1 #496b99);
+    color: white;
+}
+
+QPushButton:hover {
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #7d95d7, stop:1 #496bd9);
+}
+
+QPushButton:pressed {
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #9d95d7, stop:1 #796bd9);
+}
+
+QPushButton:disabled {
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #9d95d7, stop:1 #796b99);
+}
