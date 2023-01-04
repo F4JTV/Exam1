@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 """ Exam'1 for French HAM Radio Certificate Training """
-# TODO: Customiser le style de la visu des questions
-# TODO: S'attaquer à la création des utilisateurs
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtWidgets import QApplication, QSplashScreen
 

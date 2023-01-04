@@ -180,6 +180,7 @@ class MainWindow(QMainWindow):
         else:
             self.users_management_win = UsersManagementWindow(self)
             self.users_management_win.show()
+            self.hide()
 
     def display_errors_management_win(self):
         """ Display Management Window """
@@ -188,6 +189,7 @@ class MainWindow(QMainWindow):
         else:
             self.errors_management_win = ErrorsManagementWindow(self)
             self.errors_management_win.show()
+            self.hide()
 
     def display_asked_questions_win(self):
         """ Display Management Window """
@@ -196,6 +198,7 @@ class MainWindow(QMainWindow):
         else:
             self.asked_questions_win = AskedQuestionsWindow(self)
             self.asked_questions_win.show()
+            self.hide()
 
     def display_all_questions_win(self):
         """ Display Management Window """
@@ -204,6 +207,7 @@ class MainWindow(QMainWindow):
         else:
             self.all_questions_win = AllQuestionsWindow(self)
             self.all_questions_win.show()
+            self.hide()
 
     def display_contribute_win(self):
         """ Display Management Window """
@@ -212,6 +216,7 @@ class MainWindow(QMainWindow):
         else:
             self.contribute_win = ContributeWindow(self)
             self.contribute_win.show()
+            self.hide()
 
     def display_test_launcher_win(self):
         """ Display Management Window """
@@ -220,6 +225,7 @@ class MainWindow(QMainWindow):
         else:
             self.test_launcher_win = TestLauncherWindow(self)
             self.test_launcher_win.show()
+            self.hide()
 
     def up_opacity(self):
         """ Up the opacity """

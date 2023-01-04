@@ -1,10 +1,10 @@
 """ Errors Management Window """
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QCloseEvent, QFont
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QToolButton
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QToolButton
 
 
-class ErrorsManagementWindow(QDialog):
+class ErrorsManagementWindow(QWidget):
     """ Errors Management Window """
 
     def __init__(self, master):
@@ -23,7 +23,6 @@ class ErrorsManagementWindow(QDialog):
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle("Gestion des erreurs")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-        self.setModal(True)
         x = self.master.geometry().x() + self.master.width() // 2 - self.width() // 2
         y = self.master.geometry().y() + self.master.height() // 2 - self.height() // 2
         self.setGeometry(x, y, 400, 140)
@@ -70,9 +69,10 @@ class ErrorsManagementWindow(QDialog):
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         self.master.errors_management_win = None
+        self.master.show()
 
 
-    class UsersErrorsListWindow(QDialog):
+    class UsersErrorsListWindow(QWidget):
         """  Users List Window """
 
         def __init__(self, master):
@@ -84,7 +84,6 @@ class ErrorsManagementWindow(QDialog):
             self.setWindowFlags(Qt.WindowCloseButtonHint)
             self.setWindowTitle("Liste complète des erreurs par candidat")
             self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-            self.setModal(True)
             x = self.master.master.geometry().x() + self.master.master.width() // 2 - self.width() // 2
             y = self.master.master.geometry().y() + self.master.master.height() // 2 - self.height() // 2
             self.setGeometry(x, y, 400, 400)
@@ -95,7 +94,7 @@ class ErrorsManagementWindow(QDialog):
             self.master.users_errors_list_win = None
 
 
-    class ErrorsListWindow(QDialog):
+    class ErrorsListWindow(QWidget):
         """ Users Test List Window """
 
         def __init__(self, master):
@@ -107,7 +106,6 @@ class ErrorsManagementWindow(QDialog):
             self.setWindowFlags(Qt.WindowCloseButtonHint)
             self.setWindowTitle("Liste complète des erreurs")
             self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-            self.setModal(True)
             x = self.master.master.geometry().x() + self.master.master.width() // 2 - self.width() // 2
             y = self.master.master.geometry().y() + self.master.master.height() // 2 - self.height() // 2
             self.setGeometry(x, y, 400, 400)

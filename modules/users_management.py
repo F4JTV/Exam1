@@ -1,10 +1,11 @@
 """ Users Management Window """
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QCloseEvent, QFont
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QToolButton
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QToolButton, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, \
+    QHeaderView
 
 
-class UsersManagementWindow(QDialog):
+class UsersManagementWindow(QWidget):
     """ Users Management Window """
 
     def __init__(self, master):
@@ -26,7 +27,6 @@ class UsersManagementWindow(QDialog):
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle("Gestion des épreuves")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-        self.setModal(True)
         x = self.master.geometry().x() + self.master.width() // 2 - self.width() // 2
         y = self.master.geometry().y() + self.master.height() // 2 - self.height() // 2
         self.setGeometry(x, y, 400, 380)
@@ -120,9 +120,10 @@ class UsersManagementWindow(QDialog):
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         self.master.users_management_win = None
+        self.master.show()
 
 
-    class TestsListWindow(QDialog):
+    class TestsListWindow(QWidget):
         """  Test List Window """
 
         def __init__(self, master):
@@ -134,7 +135,6 @@ class UsersManagementWindow(QDialog):
             self.setWindowFlags(Qt.WindowCloseButtonHint)
             self.setWindowTitle("Liste complète des épreuves")
             self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-            self.setModal(True)
             x = self.master.master.geometry().x() + self.master.master.width() // 2 - self.width() // 2
             y = self.master.master.geometry().y() + self.master.master.height() // 2 - self.height() // 2
             self.setGeometry(x, y, 400, 400)
@@ -145,7 +145,7 @@ class UsersManagementWindow(QDialog):
             self.master.test_list_win = None
 
 
-    class UsersTestsListWindow(QDialog):
+    class UsersTestsListWindow(QWidget):
         """ Users Test List Window """
 
         def __init__(self, master):
@@ -157,7 +157,6 @@ class UsersManagementWindow(QDialog):
             self.setWindowFlags(Qt.WindowCloseButtonHint)
             self.setWindowTitle("Liste des épreuves par candidat")
             self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-            self.setModal(True)
             x = self.master.master.geometry().x() + self.master.master.width() // 2 - self.width() // 2
             y = self.master.master.geometry().y() + self.master.master.height() // 2 - self.height() // 2
             self.setGeometry(x, y, 400, 400)
@@ -168,7 +167,7 @@ class UsersManagementWindow(QDialog):
             self.master.users_test_list_win = None
 
 
-    class UsersTestsTrialListWindow(QDialog):
+    class UsersTestsTrialListWindow(QWidget):
         """ Users Test Trial List Window """
 
         def __init__(self, master):
@@ -180,7 +179,6 @@ class UsersManagementWindow(QDialog):
             self.setWindowFlags(Qt.WindowCloseButtonHint)
             self.setWindowTitle("Liste des épreuves par candidats et par type d'épreuve")
             self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-            self.setModal(True)
             x = self.master.master.geometry().x() + self.master.master.width() // 2 - self.width() // 2
             y = self.master.master.geometry().y() + self.master.master.height() // 2 - self.height() // 2
             self.setGeometry(x, y, 400, 400)
@@ -191,7 +189,7 @@ class UsersManagementWindow(QDialog):
             self.master.users_tests_trial_list_win = None
 
 
-    class ProgressUsersTrialWindow(QDialog):
+    class ProgressUsersTrialWindow(QWidget):
         """ Progress Users Trial Window """
 
         def __init__(self, master):
@@ -203,7 +201,6 @@ class UsersManagementWindow(QDialog):
             self.setWindowFlags(Qt.WindowCloseButtonHint)
             self.setWindowTitle("Progression par type d'épreuve et par candidat")
             self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-            self.setModal(True)
             x = self.master.master.geometry().x() + self.master.master.width() // 2 - self.width() // 2
             y = self.master.master.geometry().y() + self.master.master.height() // 2 - self.height() // 2
             self.setGeometry(x, y, 400, 400)
@@ -214,7 +211,7 @@ class UsersManagementWindow(QDialog):
             self.master.progress_users_trial_win = None
 
 
-    class UsersListWindow(QDialog):
+    class UsersListWindow(QWidget):
         """ Progress Users Trial Window """
 
         def __init__(self, master):
@@ -226,10 +223,39 @@ class UsersManagementWindow(QDialog):
             self.setWindowFlags(Qt.WindowCloseButtonHint)
             self.setWindowTitle("Liste des candidats")
             self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-            self.setModal(True)
             x = self.master.master.geometry().x() + self.master.master.width() // 2 - self.width() // 2
             y = self.master.master.geometry().y() + self.master.master.height() // 2 - self.height() // 2
             self.setGeometry(x, y, 400, 400)
+
+            # Main Layout
+            self.main_layout = QVBoxLayout()
+            self.setLayout(self.main_layout)
+
+            # Buttons Layout
+            self.buttons_layout = QHBoxLayout()
+            self.main_layout.addLayout(self.buttons_layout, 1)
+            self.add_user_btn = QPushButton("Nouveau Candidat")
+            self.remove_user = QPushButton("Modifier")
+            self.edit_user = QPushButton("Supprimer")
+
+            self.buttons_layout.addWidget(self.add_user_btn)
+            self.buttons_layout.addWidget(self.remove_user)
+            self.buttons_layout.addWidget(self.edit_user)
+            
+            # Users Table
+            self.users_table = QTableWidget()
+            self.users_table.setFixedSize(QSize(380, 350))
+            self.users_table.setSortingEnabled(False)
+            self.users_table.setColumnCount(1)
+            self.users_table.horizontalHeader().setStretchLastSection(True)
+            self.users_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+            self.header = QTableWidgetItem("Liste des Candidats")
+            self.header.setFont(QFont("Lato", 12))
+            self.users_table.setHorizontalHeaderItem(0, self.header)
+            self.users_table.verticalHeader().setVisible(False)
+            self.users_table.setAlternatingRowColors(True)
+
+            self.main_layout.addWidget(self.users_table, 4)
 
         def closeEvent(self, a0: QCloseEvent):
             """ Close Event """
