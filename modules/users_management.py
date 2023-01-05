@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIcon, QCloseEvent, QFont
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QToolButton, QHBoxLayout,
                              QPushButton, QTableWidget, QTableWidgetItem,
                              QHeaderView, QDialog, QFormLayout, QLineEdit, QMessageBox)
-
+# TODO: Finir Modifier candidat
 
 class UsersManagementWindow(QWidget):
     """ Users Management Window """
@@ -222,6 +222,7 @@ class UsersManagementWindow(QWidget):
             self.master = master
 
             self.new_user_win = None
+            self.edit_user_win = None
             self.user_item = QTableWidgetItem()
             self.users_dict = dict()
             self.user_selected = str()
@@ -243,14 +244,16 @@ class UsersManagementWindow(QWidget):
             self.buttons_layout = QHBoxLayout()
             self.main_layout.addLayout(self.buttons_layout, 1)
             self.add_user_btn = QPushButton("Nouveau Candidat")
-            self.remove_user = QPushButton("Modifier")
-            self.edit_user = QPushButton("Supprimer")
+            self.remove_user_btn = QPushButton("Supprimer")
+            self.edit_user_btn = QPushButton("Modifier")
 
             self.add_user_btn.clicked.connect(self.display_new_user_win)
+            self.remove_user_btn.clicked.connect(self.remove_user)
+            self.edit_user_btn.clicked.connect(self.display_edit_user_win)
 
             self.buttons_layout.addWidget(self.add_user_btn)
-            self.buttons_layout.addWidget(self.remove_user)
-            self.buttons_layout.addWidget(self.edit_user)
+            self.buttons_layout.addWidget(self.remove_user_btn)
+            self.buttons_layout.addWidget(self.edit_user_btn)
             
             # Users Table
             self.users_table = QTableWidget()
@@ -271,7 +274,7 @@ class UsersManagementWindow(QWidget):
             self.main_layout.addWidget(self.users_table, 4)
 
             try:
-                with open("./files/users.json", "r") as users_file:
+                with open("./files/users.json", "r", encoding="utf-8") as users_file:
                     self.users_dict = json.load(users_file)
 
                 count = 0
@@ -301,12 +304,17 @@ class UsersManagementWindow(QWidget):
             self.new_user_win = UsersManagementWindow.UsersListWindow.NewUserWindow(self)
             self.new_user_win.show()
 
+        def display_edit_user_win(self):
+            self.edit_user_win = UsersManagementWindow.UsersListWindow.EditUserWindow(self)
+            self.edit_user_win.show()
+
         def create_user(self, user_name):
             try:
-                with open("./files/users.json", "r") as users_file:
+                with open("./files/users.json", "r", encoding="utf-8") as users_file:
                     self.users_dict = json.load(users_file)
 
-                user = {"épreuves": []}
+                user = {"épreuves": [],
+                        "erreurs": []}
                 self.users_dict[user_name] = user
 
                 count = 0
@@ -318,7 +326,7 @@ class UsersManagementWindow(QWidget):
                     self.users_table.setItem(count, 0, self.user_item)
                     count += 1
 
-                with open("./files/users.json", "w") as users_file:
+                with open("./files/users.json", "w", encoding="utf-8") as users_file:
                     json.dump(self.users_dict, users_file, indent=4,
                               sort_keys=True, ensure_ascii=False)
 
@@ -328,6 +336,43 @@ class UsersManagementWindow(QWidget):
                 print(e)
             except IndexError as e:
                 print(e)
+
+        def remove_user(self):
+            if self.user_selected == "":
+                self.display_error("Veuillez sélectionner un candidat")
+                return
+            else:
+                self.users_dict.pop(self.user_selected)
+                self.user_selected = ""
+
+                count = 0
+                for user in self.users_dict.keys():
+                    self.user_item = QTableWidgetItem(user)
+                    self.user_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                    self.user_item.setTextAlignment(Qt.AlignCenter)
+                    self.users_table.setRowCount(count + 1)
+                    self.users_table.setItem(count, 0, self.user_item)
+                    count += 1
+
+                with open("./files/users.json", "w", encoding="utf-8") as users_file:
+                    json.dump(self.users_dict, users_file, indent=4,
+                              sort_keys=True, ensure_ascii=False)
+
+        def edit_user(self, new_name):
+            if self.user_selected == "":
+                self.display_error("Veuillez sélectionner un candidat")
+                return
+            else:
+                print(f"{self.user_selected} -> {new_name}")
+
+        def display_error(self, error):
+            error_win = QMessageBox(self)
+            error_win.setText(error)
+            error_win.setWindowTitle("Erreur")
+            error_win.setIcon(QMessageBox.Critical)
+            error_win.setModal(True)
+            error_win.exec_()
+
 
         class NewUserWindow(QDialog):
             def __init__(self, master):
@@ -361,16 +406,81 @@ class UsersManagementWindow(QWidget):
 
             def create_user(self):
                 user = self.user_name.text().strip()
+                for name in self.master.users_dict.keys():
+                    if name == user:
+                        self.display_error("Le nom du candidat existe déjà.")
+                        return
                 if user == "":
-                    error = QMessageBox(self)
-                    error.setText("Le nom du candidat ne peux être vide.")
-                    error.setWindowTitle("Erreur")
-                    error.setIcon(QMessageBox.Critical)
-                    error.setModal(True)
-                    error.exec_()
+                    self.display_error("Le nom du candidat ne peux être vide.")
+                    return
                 else:
                     self.master.create_user(user)
+                    self.close()
+
+            def display_error(self, error):
+                error_win = QMessageBox(self)
+                error_win.setText(error)
+                error_win.setWindowTitle("Erreur")
+                error_win.setIcon(QMessageBox.Critical)
+                error_win.setModal(True)
+                error_win.exec_()
 
             def closeEvent(self, a0: QCloseEvent):
                 """ Close Event """
                 self.master.new_user_win = None
+
+        class EditUserWindow(QDialog):
+            def __init__(self, master):
+                super().__init__()
+                self.master = master
+
+                # ### Window config
+                self.setFixedSize(300, 90)
+                self.setWindowFlags(Qt.WindowCloseButtonHint)
+                self.setWindowTitle("Modifier Candidat")
+                self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
+                self.setModal(True)
+                x = self.master.geometry().x() + self.master.width() // 2 - self.width() // 2
+                y = self.master.geometry().y() + self.master.height() // 2 - self.height() // 2
+                self.setGeometry(x, y, 300, 120)
+
+                # Main Layout
+                self.main_layout = QFormLayout()
+                self.setLayout(self.main_layout)
+
+                # Form Layout
+                self.user_name = QLineEdit()
+                self.user_name.setPlaceholderText("Nom Prénom")
+                self.user_name.setText(self.master.user_selected)
+                self.user_name.setAlignment(Qt.AlignCenter)
+                self.edit_user_btn = QPushButton("Modifier Candidat")
+
+                self.edit_user_btn.clicked.connect(self.edit_user)
+
+                self.main_layout.addWidget(self.user_name)
+                self.main_layout.addWidget(self.edit_user_btn)
+
+            def edit_user(self):
+                user = self.user_name.text().strip()
+                for name in self.master.users_dict.keys():
+                    if name == user:
+                        self.display_error("Le nom du candidat existe déjà.")
+                        return
+                if user == "":
+                    self.display_error("Le nom du candidat ne peux être vide.")
+                    return
+                else:
+                    self.master.edit_user(user)
+                    self.close()
+
+            def display_error(self, error):
+                error_win = QMessageBox(self)
+                error_win.setText(error)
+                error_win.setWindowTitle("Erreur")
+                error_win.setIcon(QMessageBox.Critical)
+                error_win.setModal(True)
+                error_win.exec_()
+
+            def closeEvent(self, a0: QCloseEvent):
+                """ Close Event """
+                self.master.edit_user_win = None
