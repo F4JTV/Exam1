@@ -25,9 +25,6 @@ class AllQuestionsWindow(QWidget):
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle("Liste complète des questions")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-        x = self.master.geometry().x() + self.master.width() // 2 - self.width() // 2
-        y = self.master.geometry().y() + self.master.height() // 2 - self.height() // 2
-        self.setGeometry(x, y, 800, 570)
 
         # Main Layout
         self.main_layout = QHBoxLayout()
@@ -76,8 +73,8 @@ class AllQuestionsWindow(QWidget):
         if self.question_win is not None:
             self.question_win.close()
         else:
-            self.question_win = AllQuestionsWindow.QuestionWindow(self, question, num, propositions, reponse,
-                                                                  theme_num, commentaire, cours, index)
+            self.question_win = QuestionWindow(self, question, num, propositions, reponse,
+                                               theme_num, commentaire, cours, index)
             self.hide()
             self.question_win.show()
 
@@ -118,206 +115,203 @@ class AllQuestionsWindow(QWidget):
         self.master.all_questions_win = None
 
 
-    class QuestionWindow(QWidget):
-        """ Question Window """
+class QuestionWindow(QWidget):
+    """ Question Window """
 
-        def __init__(self, master, question, num, propositions,
-                     reponse, theme_num, commentaire, cours, index):
-            super().__init__()
-            self.master = master
-            self.num = num
-            self.question = question
-            self.propositions = propositions
-            self.reponse = reponse
-            self.theme_num = theme_num
-            self.commentaire = commentaire
-            self.cours = cours
-            self.current_index = index
+    def __init__(self, master, question, num, propositions,
+                 reponse, theme_num, commentaire, cours, index):
+        super().__init__()
+        self.master = master
+        self.num = num
+        self.question = question
+        self.propositions = propositions
+        self.reponse = reponse
+        self.theme_num = theme_num
+        self.commentaire = commentaire
+        self.cours = cours
+        self.current_index = index
 
-            self.themes = {
-                305: "Questions entrainement",
-                206: "Electricité de base",
-                202: "Groupements de résistances",
-                207: "Courants alternatifs",
-                208: "Condensateurs et bobines (séparés)",
-                209: "Transformateurs, ampli op, filtres RC LC RLC",
-                205: "Rôle des différents étages RF, haut-parleur, micro",
-                203: "Diodes et transistors, classes d'amplification",
-                210: "Antennes, couplage, propagation, ligne de transmission",
-                204: "Synoptiques d'émetteurs et de récepteurs",
-                201: "Code des couleurs des résistances",
-                304: "Table d'épellation internationale",
-                309: "Adaptation, ROS, affaiblissement linéique, calcul ",
-                307: "Teneur des messages, matériel obligatoire, exposition",
-                302: "Indicatifs d'appel français et préfixes européens",
-                306: "Sanctions,  examen, perturbation, bande passante",
-                308: "Caractéristiques des antennes, longueur d'onde-fréquence",
-                301: "Définition et autorisation des classes d'émission",
-                310: "Gammes d'onde, décibels, CEM, protection",
-                303: "Abréviations en code Q"
-            }
+        self.themes = {
+            305: "Questions entrainement",
+            206: "Electricité de base",
+            202: "Groupements de résistances",
+            207: "Courants alternatifs",
+            208: "Condensateurs et bobines (séparés)",
+            209: "Transformateurs, ampli op, filtres RC LC RLC",
+            205: "Rôle des différents étages RF, haut-parleur, micro",
+            203: "Diodes et transistors, classes d'amplification",
+            210: "Antennes, couplage, propagation, ligne de transmission",
+            204: "Synoptiques d'émetteurs et de récepteurs",
+            201: "Code des couleurs des résistances",
+            304: "Table d'épellation internationale",
+            309: "Adaptation, ROS, affaiblissement linéique, calcul ",
+            307: "Teneur des messages, matériel obligatoire, exposition",
+            302: "Indicatifs d'appel français et préfixes européens",
+            306: "Sanctions,  examen, perturbation, bande passante",
+            308: "Caractéristiques des antennes, longueur d'onde-fréquence",
+            301: "Définition et autorisation des classes d'émission",
+            310: "Gammes d'onde, décibels, CEM, protection",
+            303: "Abréviations en code Q"
+        }
 
-            # ### Window config
-            self.setFixedWidth(800)
-            self.setFixedHeight(800)
-            self.setWindowFlags(Qt.WindowCloseButtonHint)
-            self.setWindowTitle(f"Question numéro: {self.num}")
-            self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-            x = self.master.master.geometry().x() + self.master.master.width() // 2 - self.width() // 2
-            y = self.master.master.geometry().y() + self.master.master.height() // 2 - self.height() // 2
-            self.setGeometry(x, y, 800, 800)
+        # ### Window config
+        self.setFixedWidth(800)
+        self.setFixedHeight(800)
+        self.setWindowFlags(Qt.WindowCloseButtonHint)
+        self.setWindowTitle(f"Question numéro: {self.num}")
+        self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
 
-            # Main Layout
-            self.main_layout = QVBoxLayout()
-            self.setLayout(self.main_layout)
+        # Main Layout
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
 
-            # Image Label
-            self.img_label = QLabel()
-            self.img_label.setFixedSize(770, 350)
-            self.img_label.setPixmap(QPixmap(f"./questions/{num}.png"))
-            self.main_layout.addWidget(self.img_label, 5, Qt.AlignCenter)
+        # Image Label
+        self.img_label = QLabel()
+        self.img_label.setFixedSize(770, 350)
+        self.img_label.setPixmap(QPixmap(f"./questions/{num}.png"))
+        self.main_layout.addWidget(self.img_label, 5, Qt.AlignCenter)
 
-            # Detail Comment Layout
-            self.detail_comment_layout = QHBoxLayout()
-            self.main_layout.addLayout(self.detail_comment_layout, 3)
+        # Detail Comment Layout
+        self.detail_comment_layout = QHBoxLayout()
+        self.main_layout.addLayout(self.detail_comment_layout, 3)
 
-            # Details layout
-            self.detail_group = QGroupBox("Détails")
-            self.detail_layout = QGridLayout()
-            self.detail_group.setLayout(self.detail_layout)
-            self.detail_comment_layout.addWidget(self.detail_group, 1)
+        # Details layout
+        self.detail_group = QGroupBox("Détails")
+        self.detail_layout = QGridLayout()
+        self.detail_group.setLayout(self.detail_layout)
+        self.detail_comment_layout.addWidget(self.detail_group, 1)
 
-            self.num_quest_label_1 = QLabel("N° Question:")
-            self.response_label_1 = QLabel(f"Réponse:")
-            self.family_num_label_1 = QLabel(f"Num Famille:")
-            self.family_label_1 = QLabel(f"Famille:")
-            self.num_quest_label_2 = QLabel(f"{self.num}")
-            self.response_label_2 = QLabel(f"{str(int(self.reponse) + 1)}")
-            self.family_num_label_2 = QLabel(f"{self.theme_num}")
-            self.family_label_2 = QLabel(self.themes[self.theme_num])
+        self.num_quest_label_1 = QLabel("N° Question:")
+        self.response_label_1 = QLabel(f"Réponse:")
+        self.family_num_label_1 = QLabel(f"Num Famille:")
+        self.family_label_1 = QLabel(f"Famille:")
+        self.num_quest_label_2 = QLabel(f"{self.num}")
+        self.response_label_2 = QLabel(f"{str(int(self.reponse) + 1)}")
+        self.family_num_label_2 = QLabel(f"{self.theme_num}")
+        self.family_label_2 = QLabel(self.themes[self.theme_num])
 
-            self.num_quest_label_1.setObjectName("BlackLabel")
-            self.response_label_1.setObjectName("BlackLabel")
-            self.family_label_1.setObjectName("BlackLabel")
-            self.family_num_label_1.setObjectName("BlackLabel")
-            self.num_quest_label_2.setObjectName("BlackLabel")
-            self.response_label_2.setObjectName("BlackLabel")
-            self.family_label_2.setObjectName("BlackLabel")
-            self.family_num_label_2.setObjectName("BlackLabel")
+        self.num_quest_label_1.setObjectName("BlackLabel")
+        self.response_label_1.setObjectName("BlackLabel")
+        self.family_label_1.setObjectName("BlackLabel")
+        self.family_num_label_1.setObjectName("BlackLabel")
+        self.num_quest_label_2.setObjectName("BlackLabel")
+        self.response_label_2.setObjectName("BlackLabel")
+        self.family_label_2.setObjectName("BlackLabel")
+        self.family_num_label_2.setObjectName("BlackLabel")
 
-            self.num_quest_label_2.setWordWrap(True)
-            self.response_label_2.setWordWrap(True)
-            self.family_label_2.setWordWrap(True)
-            self.family_num_label_2.setWordWrap(True)
-            self.family_label_2.setFixedWidth(150)
+        self.num_quest_label_2.setWordWrap(True)
+        self.response_label_2.setWordWrap(True)
+        self.family_label_2.setWordWrap(True)
+        self.family_num_label_2.setWordWrap(True)
+        self.family_label_2.setFixedWidth(150)
 
-            self.detail_layout.addWidget(self.num_quest_label_1, 0, 0, Qt.AlignLeft)
-            self.detail_layout.addWidget( self.response_label_1, 1, 0, Qt.AlignLeft)
-            self.detail_layout.addWidget( self.family_label_1, 3, 0, Qt.AlignLeft)
-            self.detail_layout.addWidget(self.family_num_label_1, 2, 0, Qt.AlignLeft)
-            self.detail_layout.addWidget(self.num_quest_label_2, 0, 1, Qt.AlignLeft)
-            self.detail_layout.addWidget(self.response_label_2, 1, 1, Qt.AlignLeft)
-            self.detail_layout.addWidget(self.family_num_label_2, 2, 1, Qt.AlignLeft)
-            self.detail_layout.addWidget(self.family_label_2, 3, 1, Qt.AlignLeft)
+        self.detail_layout.addWidget(self.num_quest_label_1, 0, 0, Qt.AlignLeft)
+        self.detail_layout.addWidget( self.response_label_1, 1, 0, Qt.AlignLeft)
+        self.detail_layout.addWidget( self.family_label_1, 3, 0, Qt.AlignLeft)
+        self.detail_layout.addWidget(self.family_num_label_1, 2, 0, Qt.AlignLeft)
+        self.detail_layout.addWidget(self.num_quest_label_2, 0, 1, Qt.AlignLeft)
+        self.detail_layout.addWidget(self.response_label_2, 1, 1, Qt.AlignLeft)
+        self.detail_layout.addWidget(self.family_num_label_2, 2, 1, Qt.AlignLeft)
+        self.detail_layout.addWidget(self.family_label_2, 3, 1, Qt.AlignLeft)
 
-            # Comment Layout
-            self.comment_group = QGroupBox("Commentaire")
-            self.comment_layout = QHBoxLayout()
+        # Comment Layout
+        self.comment_group = QGroupBox("Commentaire")
+        self.comment_layout = QHBoxLayout()
 
-            if self.commentaire is None:
-                self.comment_label = QLabel(f"{self.cours}")
-            else:
-                self.comment_label = QLabel(f"{self.commentaire}\n{self.cours}")
-            self.comment_label.setObjectName("BlackLabel")
-            self.comment_label.setWordWrap(True)
-            self.comment_group.setLayout(self.comment_layout)
-            self.comment_layout.addWidget(self.comment_label, 1)
-            self.detail_comment_layout.addWidget(self.comment_group, 2)
+        if self.commentaire is None:
+            self.comment_label = QLabel(f"{self.cours}")
+        else:
+            self.comment_label = QLabel(f"{self.commentaire}\n{self.cours}")
+        self.comment_label.setObjectName("BlackLabel")
+        self.comment_label.setWordWrap(True)
+        self.comment_group.setLayout(self.comment_layout)
+        self.comment_layout.addWidget(self.comment_label, 1)
+        self.detail_comment_layout.addWidget(self.comment_group, 2)
 
-            # Response Layout
-            self.responses_group = QGroupBox("Réponses")
-            self.responses_layout = QVBoxLayout()
-            self.responses_group.setLayout(self.responses_layout)
-            self.main_layout.addWidget(self.responses_group, 2)
+        # Response Layout
+        self.responses_group = QGroupBox("Réponses")
+        self.responses_layout = QVBoxLayout()
+        self.responses_group.setLayout(self.responses_layout)
+        self.main_layout.addWidget(self.responses_group, 2)
 
-            self.choice_1 = QLabel(f"Choix 1:\t\t" + self.propositions[0].replace('\n', ''))
-            self.choice_2 = QLabel(f"Choix 2:\t\t" + self.propositions[1].replace('\n', ''))
-            self.choice_3 = QLabel(f"Choix 3:\t\t" + self.propositions[2].replace('\n', ''))
-            self.choice_4 = QLabel(f"Choix 4:\t\t" + self.propositions[3].replace('\n', ''))
-            self.choice_1.setObjectName("BlackLabel")
-            self.choice_2.setObjectName("BlackLabel")
-            self.choice_3.setObjectName("BlackLabel")
-            self.choice_4.setObjectName("BlackLabel")
-            self.responses_layout.addWidget(self.choice_1, 1, Qt.AlignLeft)
-            self.responses_layout.addWidget(self.choice_2, 1, Qt.AlignLeft)
-            self.responses_layout.addWidget(self.choice_3, 1, Qt.AlignLeft)
-            self.responses_layout.addWidget(self.choice_4, 1, Qt.AlignLeft)
+        self.choice_1 = QLabel(f"Choix 1:\t\t" + self.propositions[0].replace('\n', ''))
+        self.choice_2 = QLabel(f"Choix 2:\t\t" + self.propositions[1].replace('\n', ''))
+        self.choice_3 = QLabel(f"Choix 3:\t\t" + self.propositions[2].replace('\n', ''))
+        self.choice_4 = QLabel(f"Choix 4:\t\t" + self.propositions[3].replace('\n', ''))
+        self.choice_1.setObjectName("BlackLabel")
+        self.choice_2.setObjectName("BlackLabel")
+        self.choice_3.setObjectName("BlackLabel")
+        self.choice_4.setObjectName("BlackLabel")
+        self.responses_layout.addWidget(self.choice_1, 1, Qt.AlignLeft)
+        self.responses_layout.addWidget(self.choice_2, 1, Qt.AlignLeft)
+        self.responses_layout.addWidget(self.choice_3, 1, Qt.AlignLeft)
+        self.responses_layout.addWidget(self.choice_4, 1, Qt.AlignLeft)
 
-            # Buttons Layout
-            self.buttons_layout = QHBoxLayout()
-            self.main_layout.addLayout(self.buttons_layout)
-            self.previous_btn = QPushButton("Précédente question")
-            self.next_btn = QPushButton("Prochaine question")
-            self.buttons_layout.addWidget(self.previous_btn, 1)
-            self.buttons_layout.addWidget(self.next_btn, 1)
-            self.next_btn.clicked.connect(self.display_next_question)
-            self.previous_btn.clicked.connect(self.display_previous_question)
+        # Buttons Layout
+        self.buttons_layout = QHBoxLayout()
+        self.main_layout.addLayout(self.buttons_layout)
+        self.previous_btn = QPushButton("Précédente question")
+        self.next_btn = QPushButton("Prochaine question")
+        self.buttons_layout.addWidget(self.previous_btn, 1)
+        self.buttons_layout.addWidget(self.next_btn, 1)
+        self.next_btn.clicked.connect(self.display_next_question)
+        self.previous_btn.clicked.connect(self.display_previous_question)
 
-            self.config_btns()
+        self.config_btns()
 
-        def display_next_question(self):
-            """ Display the next question """
-            self.current_index += 1
-            self.display_question()
-            self.config_btns()
+    def display_next_question(self):
+        """ Display the next question """
+        self.current_index += 1
+        self.display_question()
+        self.config_btns()
 
-        def display_previous_question(self):
-            """ Display the previous question """
-            self.current_index -= 1
-            self.display_question()
-            self.config_btns()
+    def display_previous_question(self):
+        """ Display the previous question """
+        self.current_index -= 1
+        self.display_question()
+        self.config_btns()
 
-        def display_question(self):
-            """ Get the info and display it """
-            info_question = self.master.questions["questions"][self.current_index]
-            num = info_question["num"]
-            propositions = info_question["propositions"]
-            reponse = info_question["reponse"]
-            theme_num = info_question["themeNum"]
-            commentaire = info_question["commentaire"]
-            cours = info_question["cours"]
+    def display_question(self):
+        """ Get the info and display it """
+        info_question = self.master.questions["questions"][self.current_index]
+        num = info_question["num"]
+        propositions = info_question["propositions"]
+        reponse = info_question["reponse"]
+        theme_num = info_question["themeNum"]
+        commentaire = info_question["commentaire"]
+        cours = info_question["cours"]
 
-            self.img_label.setPixmap(QPixmap(f"./questions/{num}.png"))
-            self.choice_1.setText(f"Choix 1:\t\t" + propositions[0].replace('\n', ''))
-            self.choice_2.setText(f"Choix 2:\t\t" + propositions[1].replace('\n', ''))
-            self.choice_3.setText(f"Choix 3:\t\t" + propositions[2].replace('\n', ''))
-            self.choice_4.setText(f"Choix 4:\t\t" + propositions[3].replace('\n', ''))
+        self.img_label.setPixmap(QPixmap(f"./questions/{num}.png"))
+        self.choice_1.setText(f"Choix 1:\t\t" + propositions[0].replace('\n', ''))
+        self.choice_2.setText(f"Choix 2:\t\t" + propositions[1].replace('\n', ''))
+        self.choice_3.setText(f"Choix 3:\t\t" + propositions[2].replace('\n', ''))
+        self.choice_4.setText(f"Choix 4:\t\t" + propositions[3].replace('\n', ''))
 
-            self.num_quest_label_2.setText(f"{num}")
-            self.response_label_2.setText(f"{str(int(reponse) + 1)}")
-            self.family_num_label_2.setText(f"{theme_num}")
-            self.family_label_2.setText(f"{self.themes[theme_num]}")
-            if commentaire is None:
-                self.comment_label.setText(f"{cours}")
-            else:
-                self.comment_label.setText(f"{commentaire}\n{cours}")
-            self.setWindowTitle(f"Question numéro: {num}")
+        self.num_quest_label_2.setText(f"{num}")
+        self.response_label_2.setText(f"{str(int(reponse) + 1)}")
+        self.family_num_label_2.setText(f"{theme_num}")
+        self.family_label_2.setText(f"{self.themes[theme_num]}")
+        if commentaire is None:
+            self.comment_label.setText(f"{cours}")
+        else:
+            self.comment_label.setText(f"{commentaire}\n{cours}")
+        self.setWindowTitle(f"Question numéro: {num}")
 
-            self.master.questions_table.selectRow(self.current_index)
+        self.master.questions_table.selectRow(self.current_index)
 
-        def config_btns(self):
-            """ Enable or disable buttons according to the current index """
-            if self.current_index == len(self.master.questions["questions"]) - 1:
-                self.next_btn.setDisabled(True)
-            else:
-                self.next_btn.setDisabled(False)
+    def config_btns(self):
+        """ Enable or disable buttons according to the current index """
+        if self.current_index == len(self.master.questions["questions"]) - 1:
+            self.next_btn.setDisabled(True)
+        else:
+            self.next_btn.setDisabled(False)
 
-            if self.current_index == 0:
-                self.previous_btn.setDisabled(True)
-            else:
-                self.previous_btn.setDisabled(False)
+        if self.current_index == 0:
+            self.previous_btn.setDisabled(True)
+        else:
+            self.previous_btn.setDisabled(False)
 
-        def closeEvent(self, a0: QCloseEvent):
-            """ Close Event """
-            self.master.show()
-            self.master.question_win = None
+    def closeEvent(self, a0: QCloseEvent):
+        """ Close Event """
+        self.master.show()
+        self.master.question_win = None

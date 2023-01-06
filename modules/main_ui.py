@@ -1,4 +1,5 @@
 """ Main UI """
+import os.path
 import sys
 import webbrowser
 from datetime import datetime
@@ -56,11 +57,13 @@ class MainWindow(QMainWindow):
         self.setMenuBar(self.menu_bar)
 
         self.software_menu = QMenu("&Logiciels et cours")
-        self.lesson_action = QAction("Cours Radioamateur")
+        self.lesson_action = QAction("cours_radio.pdf")
         self.lesson_action.setIcon(QIcon(""))
         self.software_menu.addAction(self.lesson_action)
         # noinspection PyUnresolvedReferences
-        self.lesson_action.triggered.connect(lambda: print("Cours Radioamateur"))
+        pdf_path = os.path.realpath("./files/cours_radio.pdf")
+        # noinspection PyUnresolvedReferences
+        self.lesson_action.triggered.connect(lambda: webbrowser.open(f"file://{pdf_path}"))
 
         self.about_action = QAction("A propos")
         # noinspection PyUnresolvedReferences
@@ -148,7 +151,7 @@ class MainWindow(QMainWindow):
         self.subtitle_label = QLabel("Logiciel de simulation de l'examen Radioamateur Français")
 
         # noinspection PyUnresolvedReferences
-        self.main_label.clicked.connect(lambda: webbrowser.open("https://f6kgl-f5kff.fr/", 2))
+        self.main_label.clicked.connect(lambda: webbrowser.open("https://f6kgl-f5kff.fr/exam1/", 2))
         self.title_label.setObjectName("TitleLabel")
         self.subtitle_label.setObjectName("SubTitleLabel")
 
