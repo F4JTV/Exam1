@@ -6,7 +6,9 @@ from PyQt5.QtGui import QIcon, QCloseEvent, QFont, QPixmap
 from PyQt5.QtWidgets import (QHBoxLayout, QTableWidget, QWidget,
                              QTableWidgetItem, QHeaderView, QVBoxLayout,
                              QLabel, QGroupBox, QPushButton, QScrollBar,
-                             QGridLayout)
+                             QGridLayout, QComboBox)
+
+from modules.contants import *
 
 
 class AllQuestionsWindow(QWidget):
@@ -21,14 +23,30 @@ class AllQuestionsWindow(QWidget):
         self.question_win = None
 
         # ### Window config
-        self.setFixedSize(800, 570)
+        self.setFixedSize(800, 600)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle("Liste complète des questions")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
 
         # Main Layout
-        self.main_layout = QHBoxLayout()
+        self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
+
+        # Combo themes
+        self.themes_combo = QComboBox()
+        self.themes_combo.addItem("Toutes les questions")
+        for item in THEMES_LIST:
+            self.themes_combo.addItem(THEMES_DICT[item])
+        for i in range(0, self.themes_combo.count()):
+            self.themes_combo.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
+        self.themes_combo.setEditable(True)
+        self.themes_combo.lineEdit().setReadOnly(True)
+        self.themes_combo.setMaxVisibleItems(21)
+        self.themes_combo.lineEdit().setAlignment(Qt.AlignCenter)
+        # noinspection PyUnresolvedReferences
+        self.themes_combo.activated.connect(self.display_selected_theme)
+
+        self.main_layout.addWidget(self.themes_combo)
 
         # Main layout Widgets
         self.questions_table = QTableWidget()
@@ -51,6 +69,7 @@ class AllQuestionsWindow(QWidget):
         self.questions_table.setVerticalScrollBar(self.questions_table_scrollbar)
 
         self.main_layout.addWidget(self.questions_table, 1, Qt.AlignmentFlag.AlignCenter)
+
         self.create_questions_table()
         self.questions_table.selectRow(0)
         self.questions_table.clicked.connect(lambda:
@@ -77,6 +96,44 @@ class AllQuestionsWindow(QWidget):
                                                theme_num, commentaire, cours, index)
             self.hide()
             self.question_win.show()
+
+    def display_selected_theme(self):
+        """ Display questions according to the theme """
+        if self.themes_combo.currentText() == "Toutes les questions":
+            self.create_questions_table()
+            return
+        self.questions = {"questions": []}
+        reverse_themes_dict = {}
+        for key, value in THEMES_DICT.items():
+            reverse_themes_dict[value] = key
+
+        with open("./questions/questions.json", "r") as questions_file:
+            questions = json.load(questions_file)
+
+        for question in questions["questions"]:
+            if int(question["themeNum"]) == int(reverse_themes_dict[self.themes_combo.currentText()]):
+                self.questions["questions"].append(question)
+
+        self.questions_table.setRowCount(len(self.questions["questions"]))
+
+        row = 0
+        for question in self.questions["questions"]:
+            num = question["num"]
+            quest = question["question"]
+            num_item = QTableWidgetItem(num)
+            quest_item = QTableWidgetItem(quest)
+            num_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+            quest_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+            num_item.setTextAlignment(Qt.AlignCenter)
+            quest_item.setTextAlignment(Qt.AlignCenter)
+
+            self.questions_table.setItem(row, 0, num_item)
+            self.questions_table.setItem(row, 1, quest_item)
+            row += 1
+
+        number_questions = len(self.questions["questions"])
+        version = str(questions["version"].split("T")[0])
+        self.setWindowTitle(f"{number_questions} questions dans ce thème- version: {version}")
 
     def create_questions_table(self):
         """ Create the questions table """
@@ -131,29 +188,6 @@ class QuestionWindow(QWidget):
         self.cours = cours
         self.current_index = index
 
-        self.themes = {
-            305: "Questions entrainement",
-            206: "Electricité de base",
-            202: "Groupements de résistances",
-            207: "Courants alternatifs",
-            208: "Condensateurs et bobines (séparés)",
-            209: "Transformateurs, ampli op, filtres RC LC RLC",
-            205: "Rôle des différents étages RF, haut-parleur, micro",
-            203: "Diodes et transistors, classes d'amplification",
-            210: "Antennes, couplage, propagation, ligne de transmission",
-            204: "Synoptiques d'émetteurs et de récepteurs",
-            201: "Code des couleurs des résistances",
-            304: "Table d'épellation internationale",
-            309: "Adaptation, ROS, affaiblissement linéique, calcul ",
-            307: "Teneur des messages, matériel obligatoire, exposition",
-            302: "Indicatifs d'appel français et préfixes européens",
-            306: "Sanctions,  examen, perturbation, bande passante",
-            308: "Caractéristiques des antennes, longueur d'onde-fréquence",
-            301: "Définition et autorisation des classes d'émission",
-            310: "Gammes d'onde, décibels, CEM, protection",
-            303: "Abréviations en code Q"
-        }
-
         # ### Window config
         self.setFixedSize(QSize(800, 850))
         self.setWindowFlags(Qt.WindowCloseButtonHint)
@@ -188,7 +222,7 @@ class QuestionWindow(QWidget):
         self.num_quest_label_2 = QLabel(f"{self.num}")
         self.response_label_2 = QLabel(f"{str(int(self.reponse) + 1)}")
         self.family_num_label_2 = QLabel(f"{self.theme_num}")
-        self.family_label_2 = QLabel(self.themes[self.theme_num])
+        self.family_label_2 = QLabel(THEMES_DICT[self.theme_num])
 
         self.num_quest_label_1.setObjectName("BlackLabel")
         self.response_label_1.setObjectName("BlackLabel")
@@ -295,7 +329,7 @@ class QuestionWindow(QWidget):
         self.num_quest_label_2.setText(f"{num}")
         self.response_label_2.setText(f"{str(int(reponse) + 1)}")
         self.family_num_label_2.setText(f"{theme_num}")
-        self.family_label_2.setText(f"{self.themes[theme_num]}")
+        self.family_label_2.setText(f"{THEMES_DICT[theme_num]}")
         if commentaire is None:
             self.comment_label.setText(f"{cours}")
         else:

@@ -4,8 +4,9 @@ import webbrowser
 
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QCloseEvent, QFont
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QTableWidget, QHeaderView, \
-    QTableWidgetItem, QStatusBar
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton,
+                             QHBoxLayout, QTableWidget, QHeaderView,
+                             QTableWidgetItem)
 
 
 class ContributeWindow(QWidget):
@@ -58,6 +59,7 @@ class ContributeWindow(QWidget):
         self.main_layout.addLayout(self.buttons_layout, 1)
 
     def display_contributors_win(self):
+        """ Display the contributors table Window """
         self.contributors_win = ContributorsWindow(self)
         self.contributors_win.show()
 
@@ -87,7 +89,7 @@ class ContributorsWindow(QWidget):
         # Main layout Widgets
         self.contributors_table = QTableWidget()
         self.contributors_table.setFixedSize(QSize(580, 580))
-        self.contributors_table.setSortingEnabled(False)
+        self.contributors_table.setSortingEnabled(True)
         self.contributors_table.setColumnCount(2)
         self.contributors_table.horizontalHeader().setStretchLastSection(True)
         self.contributors_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
