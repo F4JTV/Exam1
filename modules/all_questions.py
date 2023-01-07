@@ -91,7 +91,7 @@ class AllQuestionsWindow(QWidget):
                     quest = question["question"]
                     num_item = QTableWidgetItem(num)
                     quest_item = QTableWidgetItem(quest)
-                    # num_item.setFlags(Qt.ItemIsEnabled)
+                    num_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                     quest_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                     num_item.setTextAlignment(Qt.AlignCenter)
                     quest_item.setTextAlignment(Qt.AlignCenter)
@@ -155,11 +155,11 @@ class QuestionWindow(QWidget):
         }
 
         # ### Window config
-        self.setFixedWidth(800)
-        self.setFixedHeight(800)
+        self.setFixedSize(QSize(800, 850))
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle(f"Question numéro: {self.num}")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
+        self.setUpdatesEnabled(True)
 
         # Main Layout
         self.main_layout = QVBoxLayout()
@@ -203,16 +203,16 @@ class QuestionWindow(QWidget):
         self.response_label_2.setWordWrap(True)
         self.family_label_2.setWordWrap(True)
         self.family_num_label_2.setWordWrap(True)
-        self.family_label_2.setFixedWidth(150)
+        # self.family_label_2.setFixedWidth(150)
 
         self.detail_layout.addWidget(self.num_quest_label_1, 0, 0, Qt.AlignLeft)
         self.detail_layout.addWidget( self.response_label_1, 1, 0, Qt.AlignLeft)
         self.detail_layout.addWidget( self.family_label_1, 3, 0, Qt.AlignLeft)
         self.detail_layout.addWidget(self.family_num_label_1, 2, 0, Qt.AlignLeft)
-        self.detail_layout.addWidget(self.num_quest_label_2, 0, 1, Qt.AlignLeft)
-        self.detail_layout.addWidget(self.response_label_2, 1, 1, Qt.AlignLeft)
-        self.detail_layout.addWidget(self.family_num_label_2, 2, 1, Qt.AlignLeft)
-        self.detail_layout.addWidget(self.family_label_2, 3, 1, Qt.AlignLeft)
+        self.detail_layout.addWidget(self.num_quest_label_2, 0, 1, Qt.AlignCenter)
+        self.detail_layout.addWidget(self.response_label_2, 1, 1, Qt.AlignCenter)
+        self.detail_layout.addWidget(self.family_num_label_2, 2, 1, Qt.AlignCenter)
+        self.detail_layout.addWidget(self.family_label_2, 3, 1, Qt.AlignJustify)
 
         # Comment Layout
         self.comment_group = QGroupBox("Commentaire")
@@ -224,6 +224,7 @@ class QuestionWindow(QWidget):
             self.comment_label = QLabel(f"{self.commentaire}\n{self.cours}")
         self.comment_label.setObjectName("BlackLabel")
         self.comment_label.setWordWrap(True)
+        self.comment_label.setAlignment(Qt.AlignJustify)
         self.comment_group.setLayout(self.comment_layout)
         self.comment_layout.addWidget(self.comment_label, 1)
         self.detail_comment_layout.addWidget(self.comment_group, 2)
@@ -232,12 +233,12 @@ class QuestionWindow(QWidget):
         self.responses_group = QGroupBox("Réponses")
         self.responses_layout = QVBoxLayout()
         self.responses_group.setLayout(self.responses_layout)
-        self.main_layout.addWidget(self.responses_group, 2)
+        self.main_layout.addWidget(self.responses_group, 1)
 
-        self.choice_1 = QLabel(f"Choix 1:\t\t" + self.propositions[0].replace('\n', ''))
-        self.choice_2 = QLabel(f"Choix 2:\t\t" + self.propositions[1].replace('\n', ''))
-        self.choice_3 = QLabel(f"Choix 3:\t\t" + self.propositions[2].replace('\n', ''))
-        self.choice_4 = QLabel(f"Choix 4:\t\t" + self.propositions[3].replace('\n', ''))
+        self.choice_1 = QLabel(f"1:\t" + self.propositions[0].replace('\n', ''))
+        self.choice_2 = QLabel(f"2:\t" + self.propositions[1].replace('\n', ''))
+        self.choice_3 = QLabel(f"3:\t" + self.propositions[2].replace('\n', ''))
+        self.choice_4 = QLabel(f"4:\t" + self.propositions[3].replace('\n', ''))
         self.choice_1.setObjectName("BlackLabel")
         self.choice_2.setObjectName("BlackLabel")
         self.choice_3.setObjectName("BlackLabel")
@@ -264,12 +265,16 @@ class QuestionWindow(QWidget):
         self.current_index += 1
         self.display_question()
         self.config_btns()
+        self.adjustSize()
+        # self.setFixedSize(self.width(), self.height())
 
     def display_previous_question(self):
         """ Display the previous question """
         self.current_index -= 1
         self.display_question()
         self.config_btns()
+        self.adjustSize()
+        # self.setFixedSize(self.width(), self.height())
 
     def display_question(self):
         """ Get the info and display it """
@@ -282,10 +287,10 @@ class QuestionWindow(QWidget):
         cours = info_question["cours"]
 
         self.img_label.setPixmap(QPixmap(f"./questions/{num}.png"))
-        self.choice_1.setText(f"Choix 1:\t\t" + propositions[0].replace('\n', ''))
-        self.choice_2.setText(f"Choix 2:\t\t" + propositions[1].replace('\n', ''))
-        self.choice_3.setText(f"Choix 3:\t\t" + propositions[2].replace('\n', ''))
-        self.choice_4.setText(f"Choix 4:\t\t" + propositions[3].replace('\n', ''))
+        self.choice_1.setText(f"1:\t" + propositions[0].replace('\n', ''))
+        self.choice_2.setText(f"2:\t" + propositions[1].replace('\n', ''))
+        self.choice_3.setText(f"3:\t" + propositions[2].replace('\n', ''))
+        self.choice_4.setText(f"4:\t" + propositions[3].replace('\n', ''))
 
         self.num_quest_label_2.setText(f"{num}")
         self.response_label_2.setText(f"{str(int(reponse) + 1)}")

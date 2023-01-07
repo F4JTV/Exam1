@@ -22,7 +22,7 @@ APP_NAME = "Exam'1"
 TITLE = f"{APP_NAME} - {VERSION}"
 WIDTH = 800
 HEIGHT = 400
-MAIN_FONT = QFont("Lato", 10)
+MAIN_FONT = QFont("Lato", 11)
 MAIN_BTN_FONT = QFont("Lato", 12)
 MAIN_BTN_SIZE = QSize(115, 170)
 
@@ -38,6 +38,7 @@ class MainWindow(QMainWindow):
         self.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
         self.setWindowTitle(TITLE)
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
+        self.setObjectName("Main")
 
         # ### Variables
         self.opacity = 0
@@ -146,7 +147,9 @@ class MainWindow(QMainWindow):
 
         # ### Title Layout
         self.main_label = QLabelClickable()
-        self.main_label.setPixmap(QPixmap("./images/exam1.png"))
+        # self.main_label.setPixmap(QPixmap("./images/exam1.png"))
+        self.main_label.setText("Exam'1")
+        self.main_label.setFont(QFont("Radio Space", 72))
         self.title_label = QLabel("Règlementation et Technique")
         self.subtitle_label = QLabel("Logiciel de simulation de l'examen Radioamateur Français")
 

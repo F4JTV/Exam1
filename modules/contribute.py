@@ -25,20 +25,17 @@ class ContributeWindow(QWidget):
                           "Rejoignez la liste des participants en envoyant un mail au RadioClub F6KGL.\n\n"
 
         # ### Window config
-        self.setFixedSize(600, 350)
+        self.setFixedSize(700, 450)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle("Contribuez à l'amélioration d'Exam1")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-        x = self.master.geometry().x() + self.master.width() // 2 - self.width() // 2
-        y = self.master.geometry().y() + self.master.height() // 2 - self.height() // 2
-        self.setGeometry(x, y, 600, 350)
 
         # Main Layout
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
 
         self.main_label = QLabel("Aidez-nous à améliorer la base de données")
-        self.main_label.setFont(QFont("Lato", 16))
+        self.main_label.setFont(QFont("Lato", 20))
         self.detail_label = QLabel(self.detail_txt)
         self.detail_label.setWordWrap(True)
         self.detail_label.setAlignment(Qt.AlignJustify)

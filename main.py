@@ -11,14 +11,15 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     # app.instance().setAttribute(Qt.AA_DontShowIconsInMenus)
     try:
-        with open("./style/Integrid.qss", "r") as style:
+        with open("./style/Combinear.qss", "r") as style:
             qss = style.read()
             app.setStyleSheet(qss)
     except FileNotFoundError:
         pass
 
     # noinspection PyArgumentList
-    QFontDatabase.addApplicationFont("./fonts/Lato-Regular.ttf")
+    QFontDatabase.addApplicationFont("./font/Lato-Regular.ttf")
+    QFontDatabase.addApplicationFont("./font/Radio Space.ttf")
     app.setFont(MAIN_FONT)
     splash = QSplashScreen(QPixmap("./images/logocnfra2004-36k.JPG"))
     splash.show()
