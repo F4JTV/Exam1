@@ -47,8 +47,8 @@ class ContributeWindow(QWidget):
         self.main_layout.addWidget(self.main_label, 1, Qt.AlignCenter)
         self.main_layout.addWidget(self.detail_label, 3, Qt.AlignCenter)
 
-        self.contributors_list_btn = QPushButton("Liste des participants")
-        self.send_message_btn = QPushButton("Contactez le RC F6KGL")
+        self.contributors_list_btn = QPushButton("Liste des contributeurs")
+        self.send_message_btn = QPushButton("Contactez le Radio-Club F6KGL")
         self.buttons_layout = QHBoxLayout()
         self.buttons_layout.addWidget(self.contributors_list_btn)
         self.buttons_layout.addWidget(self.send_message_btn)
@@ -62,11 +62,16 @@ class ContributeWindow(QWidget):
         """ Display the contributors table Window """
         self.contributors_win = ContributorsWindow(self)
         self.contributors_win.show()
+        self.contributors_list_btn.setDisabled(True)
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         self.master.contribute_win = None
+        self.master.contribute_btn.setEnabled(True)
         self.master.show()
+
+        if self.contributors_win is not None:
+            self.contributors_win.close()
 
 
 class ContributorsWindow(QWidget):
@@ -131,3 +136,9 @@ class ContributorsWindow(QWidget):
             print(error)
         except KeyError as error:
             print(error)
+
+    def closeEvent(self, a0: QCloseEvent):
+        """ Close Event """
+        self.master.contributors_win = None
+        # self.master.show()
+        self.master.contributors_list_btn.setEnabled(True)

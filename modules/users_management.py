@@ -76,50 +76,67 @@ class UsersManagementWindow(QWidget):
         if self.users_list_win is not None:
             return
         else:
-            self.hide()
+            # self.hide()
             self.users_list_win = UsersListWindow(self)
             self.users_list_win.show()
+            self.users_list_btn.setDisabled(True)
 
     def display_progress_users_trial_win(self):
         """ Display Progress Users Trial Window """
         if self.progress_users_trial_win is not None:
             return
         else:
-            self.hide()
+            # self.hide()
             self.progress_users_trial_win = ProgressUsersTrialWindow(self)
             self.progress_users_trial_win.show()
+            self.progress_users_trial_btn.setDisabled(True)
 
     def display_users_tests_trial_list_win(self):
         """ Display Users Test Trial List Window """
         if self.users_tests_trial_list_win is not None:
             return
         else:
-            self.hide()
+            # self.hide()
             self.users_tests_trial_list_win = UsersTestsTrialListWindow(self)
             self.users_tests_trial_list_win.show()
+            self.users_tests_trial_list_btn.setDisabled(True)
 
     def display_users_tests_list(self):
         """ Display the tests list window """
         if self.users_test_list_win is not None:
             return
         else:
-            self.hide()
+            # self.hide()
             self.users_test_list_win = UsersTestsListWindow(self)
             self.users_test_list_win.show()
+            self.users_tests_list_btn.setDisabled(True)
 
     def display_tests_list(self):
         """ Display the tests list window """
         if self.test_list_win is not None:
             return
         else:
-            self.hide()
+            # self.hide()
             self.test_list_win = TestsListWindow(self)
             self.test_list_win.show()
+            self.tests_list_btn.setDisabled(True)
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         self.master.users_management_win = None
-        self.master.show()
+        self.master.manage_users_btn.setEnabled(True)
+
+        if self.users_list_win is not None:
+            self.users_list_win.close()
+        if self.progress_users_trial_win is not None:
+            self.progress_users_trial_win.close()
+        if self.users_tests_trial_list_win is not None:
+            self.users_tests_trial_list_win.close()
+        if self.users_test_list_win is not None:
+            self.users_test_list_win.close()
+        if self.test_list_win is not None:
+            self.test_list_win.close()
+        # self.master.show()
 
 
 class TestsListWindow(QWidget):
@@ -137,8 +154,9 @@ class TestsListWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
-        self.master.show()
+        # self.master.show()
         self.master.test_list_win = None
+        self.master.tests_list_btn.setEnabled(True)
 
 
 class UsersTestsListWindow(QWidget):
@@ -156,8 +174,9 @@ class UsersTestsListWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
-        self.master.show()
+        # self.master.show()
         self.master.users_test_list_win = None
+        self.master.users_tests_list_btn.setEnabled(True)
 
 
 class UsersTestsTrialListWindow(QWidget):
@@ -175,8 +194,9 @@ class UsersTestsTrialListWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
-        self.master.show()
+        # self.master.show()
         self.master.users_tests_trial_list_win = None
+        self.master.users_tests_trial_list_btn.setEnabled(True)
 
 
 class ProgressUsersTrialWindow(QWidget):
@@ -194,8 +214,9 @@ class ProgressUsersTrialWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
-        self.master.show()
+        # self.master.show()
         self.master.progress_users_trial_win = None
+        self.master.progress_users_trial_btn.setEnabled(True)
 
 
 class UsersListWindow(QWidget):
@@ -386,7 +407,8 @@ class UsersListWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
-        self.master.show()
+        # self.master.show()
+        self.master.users_list_btn.setEnabled(True)
         self.master.users_list_win = None
 
 

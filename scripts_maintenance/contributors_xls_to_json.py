@@ -20,6 +20,6 @@ for row in xls.values:
                                 "adresse": adresse
                                 }
 
-with open("./contributors.json", "w", encoding="utf-8") as contributor_file:
+with open("../files/contributors.json", "w", encoding="utf-8") as contributor_file:
     json.dump(contributor_dict, contributor_file, indent=4,
               sort_keys=True, ensure_ascii=False)

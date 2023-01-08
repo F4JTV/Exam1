@@ -94,7 +94,7 @@ class AllQuestionsWindow(QWidget):
         else:
             self.question_win = QuestionWindow(self, question, num, propositions, reponse,
                                                theme_num, commentaire, cours, index)
-            self.hide()
+            # self.hide()
             self.question_win.show()
 
     def display_selected_theme(self):
@@ -135,6 +135,10 @@ class AllQuestionsWindow(QWidget):
         version = str(questions["version"].split("T")[0])
         self.setWindowTitle(f"{number_questions} questions dans ce thème- version: {version}")
 
+        if self.question_win is not None:
+            self.question_win.display_question()
+            self.question_win.config_btns()
+
     def create_questions_table(self):
         """ Create the questions table """
         try:
@@ -168,8 +172,11 @@ class AllQuestionsWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
-        self.master.show()
+        #self.master.show()
+        if self.question_win is not None:
+            self.question_win.close()
         self.master.all_questions_win = None
+        self.master.show_questions_btn.setEnabled(True)
 
 
 class QuestionWindow(QWidget):
@@ -312,6 +319,9 @@ class QuestionWindow(QWidget):
 
     def display_question(self):
         """ Get the info and display it """
+        if self.current_index >= len(self.master.questions["questions"]):
+            self.current_index = len(self.master.questions["questions"]) - 1
+
         info_question = self.master.questions["questions"][self.current_index]
         num = info_question["num"]
         propositions = info_question["propositions"]
@@ -352,5 +362,5 @@ class QuestionWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
-        self.master.show()
+        #self.master.show()
         self.master.question_win = None

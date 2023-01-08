@@ -12,7 +12,7 @@ class TestLauncherWindow(QWidget):
         self.master = master
 
         # ### Window config
-        self.setFixedSize(600, 600)
+        self.setFixedSize(800, 600)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle("Choix du candidat et de l'épreuve")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
@@ -20,4 +20,5 @@ class TestLauncherWindow(QWidget):
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         self.master.test_launcher_win = None
-        self.master.show()
+        self.master.start_test_btn.setEnabled(True)
+        # self.master.show()

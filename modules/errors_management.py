@@ -50,58 +50,68 @@ class ErrorsManagementWindow(QWidget):
         if self.errors_list_win is not None:
             return
         else:
-            self.hide()
-            self.errors_list_win = ErrorsManagementWindow.ErrorsListWindow(self)
+            # self.hide()
+            self.errors_list_win = ErrorsListWindow(self)
             self.errors_list_win.show()
+            self.errors_list_btn.setDisabled(True)
 
     def display_users_errors_list(self):
         """ Display the tests list window """
         if self.users_errors_list_win is not None:
             return
         else:
-            self.hide()
-            self.users_errors_list_win = ErrorsManagementWindow.UsersErrorsListWindow(self)
+            # self.hide()
+            self.users_errors_list_win = UsersErrorsListWindow(self)
             self.users_errors_list_win.show()
+            self.users_errors_list_btn.setDisabled(True)
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         self.master.errors_management_win = None
-        self.master.show()
+        self.master.manage_errors_btn.setEnabled(True)
+        if self.errors_list_win is not None:
+            self.errors_list_win.close()
+        if self.users_errors_list_win is not None:
+            self.users_errors_list_win.close()
+
+        # self.master.show()
 
 
-    class UsersErrorsListWindow(QWidget):
-        """  Users List Window """
+class UsersErrorsListWindow(QWidget):
+    """  Users List Window """
 
-        def __init__(self, master):
-            super().__init__()
-            self.master = master
+    def __init__(self, master):
+        super().__init__()
+        self.master = master
 
-            # ### Window config
-            self.setFixedSize(400, 400)
-            self.setWindowFlags(Qt.WindowCloseButtonHint)
-            self.setWindowTitle("Liste complète des erreurs par candidat")
-            self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
+        # ### Window config
+        self.setFixedSize(400, 400)
+        self.setWindowFlags(Qt.WindowCloseButtonHint)
+        self.setWindowTitle("Liste complète des erreurs par candidat")
+        self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
 
-        def closeEvent(self, a0: QCloseEvent):
-            """ Close Event """
-            self.master.show()
-            self.master.users_errors_list_win = None
+    def closeEvent(self, a0: QCloseEvent):
+        """ Close Event """
+        # self.master.show()
+        self.master.users_errors_list_win = None
+        self.master.users_errors_list_btn.setEnabled(True)
 
 
-    class ErrorsListWindow(QWidget):
-        """ Users Test List Window """
+class ErrorsListWindow(QWidget):
+    """ Users Test List Window """
 
-        def __init__(self, master):
-            super().__init__()
-            self.master = master
+    def __init__(self, master):
+        super().__init__()
+        self.master = master
 
-            # ### Window config
-            self.setFixedSize(400, 400)
-            self.setWindowFlags(Qt.WindowCloseButtonHint)
-            self.setWindowTitle("Liste complète des erreurs")
-            self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
+        # ### Window config
+        self.setFixedSize(400, 400)
+        self.setWindowFlags(Qt.WindowCloseButtonHint)
+        self.setWindowTitle("Liste complète des erreurs")
+        self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
 
-        def closeEvent(self, a0: QCloseEvent):
-            """ Close Event """
-            self.master.show()
-            self.master.errors_list_win = None
+    def closeEvent(self, a0: QCloseEvent):
+        """ Close Event """
+        # self.master.show()
+        self.master.errors_list_win = None
+        self.master.errors_list_btn.setEnabled(True)
