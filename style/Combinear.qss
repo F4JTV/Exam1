@@ -144,7 +144,8 @@ QToolBar::separator
 /*-----QToolButton-----*/
 QToolButton 
 {
-	background-color: transparent;
+	background-color: #3a3a3a;
+	border: none;
 	color: #fff;
 	padding: 5px;
 	padding-left: 8px;

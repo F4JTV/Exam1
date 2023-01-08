@@ -9,7 +9,7 @@ from modules.main_ui import *
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    # app.instance().setAttribute(Qt.AA_DontShowIconsInMenus)
+
     try:
         with open("./style/Combinear.qss", "r") as style:
             qss = style.read()

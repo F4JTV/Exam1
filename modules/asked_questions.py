@@ -20,4 +20,5 @@ class AskedQuestionsWindow(QWidget):
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         self.master.asked_questions_win = None
-        self.master.show()
+        self.master.asked_questions_btn.setEnabled(True)
+        # self.master.show()

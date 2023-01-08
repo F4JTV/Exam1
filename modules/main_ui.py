@@ -20,11 +20,11 @@ from modules.test import TestLauncherWindow
 VERSION = datetime.now().strftime("v%m%d%y")
 APP_NAME = "Exam'1"
 TITLE = f"{APP_NAME} - {VERSION}"
-WIDTH = 800
+WIDTH = 840
 HEIGHT = 400
 MAIN_FONT = QFont("Lato", 11)
 MAIN_BTN_FONT = QFont("Lato", 12)
-MAIN_BTN_SIZE = QSize(115, 170)
+MAIN_BTN_SIZE = QSize(125, 170)
 
 
 class MainWindow(QMainWindow):
@@ -206,6 +206,7 @@ class MainWindow(QMainWindow):
         else:
             self.asked_questions_win = AskedQuestionsWindow(self)
             self.asked_questions_win.show()
+            self.asked_questions_btn.setDisabled(True)
             # self.hide()
 
     def display_all_questions_win(self):
