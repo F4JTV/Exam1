@@ -5,7 +5,7 @@ import webbrowser
 from datetime import datetime
 
 from PyQt5.QtCore import QTimer, pyqtSignal, Qt, QSize
-from PyQt5.QtGui import QPixmap, QIcon, QFont, QCloseEvent
+from PyQt5.QtGui import QIcon, QFont, QCloseEvent
 from PyQt5.QtWidgets import (QMainWindow, QMenuBar, QMenu, QAction,
                              QHBoxLayout, QLabel, QMessageBox, QWidget,
                              QVBoxLayout, QToolButton)
@@ -179,14 +179,32 @@ class MainWindow(QMainWindow):
         # noinspection PyUnresolvedReferences
         self.opacity_timer_close.timeout.connect(self.down_opacity)
 
+    def disable_buttons(self):
+        """ Disable all toolbuttons """
+        self.manage_users_btn.setDisabled(True)
+        self.manage_errors_btn.setDisabled(True)
+        self.asked_questions_btn.setDisabled(True)
+        self.show_questions_btn.setDisabled(True)
+        self.contribute_btn.setDisabled(True)
+        self.start_test_btn.setDisabled(True)
+
+    def enable_buttons(self):
+        """ Enable all toolbuttons """
+        self.manage_users_btn.setEnabled(True)
+        self.manage_errors_btn.setEnabled(True)
+        self.asked_questions_btn.setEnabled(True)
+        self.show_questions_btn.setEnabled(True)
+        self.contribute_btn.setEnabled(True)
+        self.start_test_btn.setEnabled(True)
+
     def display_users_management_win(self):
         """ Display Management Window """
         if self.users_management_win is not None:
             self.users_management_win.close()
         else:
+            self.disable_buttons()
             self.users_management_win = UsersManagementWindow(self)
             self.users_management_win.show()
-            self.manage_users_btn.setDisabled(True)
             # self.hide()
 
     def display_errors_management_win(self):
@@ -194,9 +212,9 @@ class MainWindow(QMainWindow):
         if self.errors_management_win is not None:
             self.errors_management_win.close()
         else:
+            self.disable_buttons()
             self.errors_management_win = ErrorsManagementWindow(self)
             self.errors_management_win.show()
-            self.manage_errors_btn.setDisabled(True)
             # self.hide()
 
     def display_asked_questions_win(self):
@@ -204,9 +222,9 @@ class MainWindow(QMainWindow):
         if self.asked_questions_win is not None:
             self.asked_questions_win.close()
         else:
+            self.disable_buttons()
             self.asked_questions_win = AskedQuestionsWindow(self)
             self.asked_questions_win.show()
-            self.asked_questions_btn.setDisabled(True)
             # self.hide()
 
     def display_all_questions_win(self):
@@ -214,9 +232,9 @@ class MainWindow(QMainWindow):
         if self.all_questions_win is not None:
             self.all_questions_win.close()
         else:
+            self.disable_buttons()
             self.all_questions_win = AllQuestionsWindow(self)
             self.all_questions_win.show()
-            self.show_questions_btn.setDisabled(True)
             # self.hide()
 
     def display_contribute_win(self):
@@ -224,9 +242,9 @@ class MainWindow(QMainWindow):
         if self.contribute_win is not None:
             self.contribute_win.close()
         else:
+            self.disable_buttons()
             self.contribute_win = ContributeWindow(self)
             self.contribute_win.show()
-            self.contribute_btn.setDisabled(True)
             # self.hide()
 
     def display_test_launcher_win(self):
@@ -234,9 +252,9 @@ class MainWindow(QMainWindow):
         if self.test_launcher_win is not None:
             self.test_launcher_win.close()
         else:
+            self.disable_buttons()
             self.test_launcher_win = TestLauncherWindow(self)
             self.test_launcher_win.show()
-            self.start_test_btn.setDisabled(True)
             # self.hide()
 
     def up_opacity(self):

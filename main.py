@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 """ Exam'1 for French HAM Radio Certificate Training """
-from PyQt5.QtGui import QFontDatabase
+from PyQt5.QtGui import QFontDatabase, QPixmap
 from PyQt5.QtWidgets import QApplication, QSplashScreen
 
 from modules.main_ui import *
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     app.setFont(MAIN_FONT)
     splash = QSplashScreen(QPixmap("./images/logocnfra2004-36k.JPG"))
     splash.show()
-    app.processEvents()
+    # app.processEvents()
     window = MainWindow()
     window.setWindowOpacity(0.0)
     splash.finish(window)

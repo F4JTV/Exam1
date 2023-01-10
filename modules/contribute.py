@@ -66,12 +66,10 @@ class ContributeWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
-        self.master.contribute_win = None
-        self.master.contribute_btn.setEnabled(True)
-        self.master.show()
-
         if self.contributors_win is not None:
             self.contributors_win.close()
+        self.master.contribute_win = None
+        self.master.enable_buttons()
 
 
 class ContributorsWindow(QWidget):

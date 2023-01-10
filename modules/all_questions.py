@@ -90,7 +90,11 @@ class AllQuestionsWindow(QWidget):
         cours = info_question["cours"]
 
         if self.question_win is not None:
-            self.question_win.close()
+            self.question_win.current_index = index
+            self.question_win.display_question()
+            self.question_win.config_btns()
+            self.question_win.adjustSize()
+            # self.question_win.close()
         else:
             self.question_win = QuestionWindow(self, question, num, propositions, reponse,
                                                theme_num, commentaire, cours, index)
@@ -176,7 +180,7 @@ class AllQuestionsWindow(QWidget):
         if self.question_win is not None:
             self.question_win.close()
         self.master.all_questions_win = None
-        self.master.show_questions_btn.setEnabled(True)
+        self.master.enable_buttons()
 
 
 class QuestionWindow(QWidget):

@@ -44,31 +44,40 @@ class ErrorsManagementWindow(QWidget):
         self.main_layout.addWidget(self.errors_list_btn, 1, Qt.AlignmentFlag.AlignCenter)
         self.main_layout.addWidget(self.users_errors_list_btn, 1, Qt.AlignmentFlag.AlignCenter)
 
+    def enable_buttons(self):
+        """ Enable buttons """
+        self.errors_list_btn.setEnabled(True)
+        self.users_errors_list_btn.setEnabled(True)
+
+    def disable_buttons(self):
+        """ Disable buttons """
+        self.errors_list_btn.setDisabled(True)
+        self.users_errors_list_btn.setDisabled(True)
 
     def display_errors_list(self):
         """ Display the tests list window """
         if self.errors_list_win is not None:
             return
         else:
+            self.disable_buttons()
             # self.hide()
             self.errors_list_win = ErrorsListWindow(self)
             self.errors_list_win.show()
-            self.errors_list_btn.setDisabled(True)
 
     def display_users_errors_list(self):
         """ Display the tests list window """
         if self.users_errors_list_win is not None:
             return
         else:
+            self.disable_buttons()
             # self.hide()
             self.users_errors_list_win = UsersErrorsListWindow(self)
             self.users_errors_list_win.show()
-            self.users_errors_list_btn.setDisabled(True)
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         self.master.errors_management_win = None
-        self.master.manage_errors_btn.setEnabled(True)
+        self.master.enable_buttons()
         if self.errors_list_win is not None:
             self.errors_list_win.close()
         if self.users_errors_list_win is not None:
@@ -94,7 +103,7 @@ class UsersErrorsListWindow(QWidget):
         """ Close Event """
         # self.master.show()
         self.master.users_errors_list_win = None
-        self.master.users_errors_list_btn.setEnabled(True)
+        self.master.enable_buttons()
 
 
 class ErrorsListWindow(QWidget):
@@ -114,4 +123,4 @@ class ErrorsListWindow(QWidget):
         """ Close Event """
         # self.master.show()
         self.master.errors_list_win = None
-        self.master.errors_list_btn.setEnabled(True)
+        self.master.enable_buttons()

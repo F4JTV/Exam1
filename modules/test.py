@@ -20,5 +20,5 @@ class TestLauncherWindow(QWidget):
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         self.master.test_launcher_win = None
-        self.master.start_test_btn.setEnabled(True)
+        self.master.enable_buttons()
         # self.master.show()
