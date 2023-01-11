@@ -142,6 +142,7 @@ class AllQuestionsWindow(QWidget):
         if self.question_win is not None:
             self.question_win.display_question()
             self.question_win.config_btns()
+            self.question_win.adjustSize()
 
     def create_questions_table(self):
         """ Create the questions table """
@@ -168,6 +169,11 @@ class AllQuestionsWindow(QWidget):
             number_questions = self.questions["nbQuestions"]
             version = str(self.questions["version"].split("T")[0])
             self.setWindowTitle(f"Liste complète des {number_questions} questions - version: {version}")
+
+            if self.question_win is not None:
+                self.question_win.display_question()
+                self.question_win.config_btns()
+                self.question_win.adjustSize()
 
         except FileNotFoundError as error:
             print(error)
