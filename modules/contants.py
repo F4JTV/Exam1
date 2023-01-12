@@ -1,3 +1,5 @@
+import json
+
 THEMES_DICT = {
     305: "Questions entrainement",
     206: "Electricité de base",
@@ -52,3 +54,13 @@ SEPARATED_THEME_DICT = {
         209: "Transformateurs, ampli op, filtres RC LC RLC",
     }
 }
+
+def get_series():
+    """ Get series from series.json """
+    with open("./files/series.json", "r", encoding="utf-8") as series_file:
+        return json.load(series_file)
+
+def get_users():
+    """ Get the users from users.json """
+    with open("./files/users.json", "r", encoding="utf-8") as users_file:
+        return json.load(users_file)

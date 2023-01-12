@@ -83,7 +83,7 @@ class UsersManagementWindow(QWidget):
             self.users_tests_trial_list_btn.setDisabled(True)
             self.progress_users_trial_btn.setDisabled(True)
 
-            self.users_list_win = UsersListWindow(self)
+            self.users_list_win = UsersListWindow(self, 0)
             self.users_list_win.show()
 
     def display_progress_users_trial_win(self):
@@ -258,9 +258,10 @@ class ProgressUsersTrialWindow(QWidget):
 class UsersListWindow(QWidget):
     """ Progress Users Trial Window """
 
-    def __init__(self, master):
+    def __init__(self, master, flag):
         super().__init__()
         self.master = master
+        self.flag = flag
 
         self.new_user_win = None
         self.edit_user_win = None
@@ -443,13 +444,19 @@ class UsersListWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
-        # self.master.show(
         self.master.users_list_win = None
-        self.master.tests_list_btn.setEnabled(True)
-        self.master.users_list_btn.setEnabled(True)
-        self.master.users_tests_list_btn.setEnabled(True)
-        self.master.users_tests_trial_list_btn.setEnabled(True)
-        self.master.progress_users_trial_btn.setEnabled(True)
+
+        if self.flag == 0:
+            self.master.tests_list_btn.setEnabled(True)
+            self.master.users_list_btn.setEnabled(True)
+            self.master.users_tests_list_btn.setEnabled(True)
+            self.master.users_tests_trial_list_btn.setEnabled(True)
+            self.master.progress_users_trial_btn.setEnabled(True)
+        elif self.flag == 1:
+            self.master.setEnabled(True)
+            self.master.rebuild_users_combo()
+
+
 
 
 class NewUserWindow(QDialog):

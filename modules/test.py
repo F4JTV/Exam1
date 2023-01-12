@@ -1,18 +1,11 @@
 """ Test Windows """
-import json
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QCloseEvent
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QGroupBox, QPushButton, QComboBox, QFrame, QToolBox, \
     QCheckBox, QLabel
 
+from modules.users_management import UsersListWindow
 from modules.contants import *
-
-
-def get_series():
-    """ Get series from series.json """
-    with open("./files/series.json", "r") as series_file:
-        return json.load(series_file)
 
 
 class TestLauncherWindow(QWidget):
@@ -22,6 +15,8 @@ class TestLauncherWindow(QWidget):
         super().__init__()
         self.master = master
         self.series = get_series()
+        self.users = get_users()
+        self.users_list_win = None
 
         # ### Window config
         self.setFixedSize(800, 500)
@@ -50,11 +45,17 @@ class TestLauncherWindow(QWidget):
         self.user_grp.setLayout(self.user_layout)
         self.user_opt_start_layout.addWidget(self.user_grp)
 
-        # Options Layout
-        self.options_layout = QVBoxLayout()
-        self.options_grp = QGroupBox("Options")
-        self.options_grp.setLayout(self.options_layout)
-        self.user_opt_start_layout.addWidget(self.options_grp)
+        # Time Layout
+        self.time_layout = QVBoxLayout()
+        self.time_grp = QGroupBox("Compte à rebourd")
+        self.time_grp.setLayout(self.time_layout)
+        self.user_opt_start_layout.addWidget(self.time_grp)
+
+        # Number of Questions Layout
+        self.num_questions_layout = QVBoxLayout()
+        self.num_questions_grp = QGroupBox("Nombre de questions")
+        self.num_questions_grp.setLayout(self.num_questions_layout)
+        self.user_opt_start_layout.addWidget(self.num_questions_grp)
 
         # Start Button
         self.start_test_btn = QPushButton("Démarrer le test")
@@ -144,6 +145,50 @@ class TestLauncherWindow(QWidget):
                         self.reglementation_layout.addWidget(self.themes_checkbox_dict[f"{theme[0]}"])
                     elif theme[0] in SEPARATED_THEME_DICT["Technique"]:
                         self.technique_layout.addWidget(self.themes_checkbox_dict[f"{theme[0]}"])
+
+        # User
+        self.users_combo = QComboBox()
+        self.users_btn = QPushButton("Gestion des candidats")
+        self.user_layout.addWidget(self.users_combo)
+        self.user_layout.addWidget(self.users_btn)
+
+        self.users_combo.setEditable(True)
+        self.users_combo.lineEdit().setReadOnly(True)
+        self.users_combo.lineEdit().setAlignment(Qt.AlignCenter)
+        self.users_combo.addItems([user for user in self.users.keys()])
+        for i in range(0, self.users_combo.count()):
+            self.users_combo.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
+        # noinspection PyUnresolvedReferences
+        self.users_combo.activated.connect(lambda: print("TODO: afficher moyenne candidat si existe"))
+        self.users_btn.clicked.connect(self.display_users_win)
+
+        # Timer
+        self.time_checkbox = QCheckBox("Activer le compte à rebourd")
+        self.handi_checkbox = QCheckBox("Session handicapé")
+        self.time_combo = QComboBox()
+        self.time_layout.addWidget(self.time_checkbox)
+        self.time_layout.addWidget(self.handi_checkbox)
+        self.time_layout.addWidget(self.time_combo)
+
+        # Number of Questions
+        self.num_questions_combo = QComboBox()
+        self.num_questions_layout.addWidget(self.num_questions_combo)
+
+    def rebuild_users_combo(self):
+        """ Rebuild users combobox """
+        self.users = get_users()
+        self.users_combo.clear()
+        self.users_combo.addItems([user for user in self.users.keys()])
+        for i in range(0, self.users_combo.count()):
+            self.users_combo.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
+
+    def display_users_win(self):
+        """ Display the Users List Window """
+        if self.users_list_win is not None:
+            self.users_list_win.close()
+        self.users_list_win = UsersListWindow(self, 1)
+        self.users_list_win.show()
+        self.setDisabled(True)
 
     def select_all_themes(self):
         """ Select all themes """
