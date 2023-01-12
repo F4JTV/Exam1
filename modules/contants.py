@@ -64,3 +64,8 @@ def get_users():
     """ Get the users from users.json """
     with open("./files/users.json", "r", encoding="utf-8") as users_file:
         return json.load(users_file)
+
+def get_questions():
+    """ Get all the questions """
+    with open("./questions/questions.json") as questions_files:
+        return json.load(questions_files)

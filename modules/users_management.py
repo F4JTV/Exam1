@@ -457,8 +457,6 @@ class UsersListWindow(QWidget):
             self.master.rebuild_users_combo()
 
 
-
-
 class NewUserWindow(QDialog):
     """ New User Window """
     def __init__(self, master):
