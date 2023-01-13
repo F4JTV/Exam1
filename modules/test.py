@@ -1,8 +1,9 @@
 """ Test Windows """
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QCloseEvent
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QGroupBox, QPushButton, QComboBox, QFrame, QToolBox, \
-    QCheckBox, QLabel
+from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QGroupBox,
+                             QPushButton, QComboBox, QFrame, QToolBox,
+                             QCheckBox, QLabel)
 
 from modules.users_management import UsersListWindow
 from modules.contants import *
@@ -18,6 +19,7 @@ class TestLauncherWindow(QWidget):
         self.users = get_users()
         self.questions = get_questions()
         self.users_list_win = None
+        self.test_win = None
         self.time_dict = {"5 minutes": 5,
                           "10 minutes": 10,
                           "15 minutes - Règlementation": 15,
@@ -27,6 +29,8 @@ class TestLauncherWindow(QWidget):
                           "60 minutes": 60,
                           "75 minutes": 75,
                           "90 minutes - Technique aménagée": 90}
+        self.exit_flag = False
+        self.theme_type = 0
 
         # ### Window config
         self.setFixedSize(900, 500)
@@ -70,6 +74,7 @@ class TestLauncherWindow(QWidget):
         # Start Button
         self.start_test_btn = QPushButton("Démarrer le test")
         self.user_opt_start_layout.addWidget(self.start_test_btn, 1)
+        self.start_test_btn.clicked.connect(self.launch_test)
 
         # Theme
         self.theme_combo = QComboBox()
@@ -201,6 +206,52 @@ class TestLauncherWindow(QWidget):
         self.num_questions_combo.lineEdit().setReadOnly(True)
         self.num_questions_combo.lineEdit().setAlignment(Qt.AlignCenter)
 
+    def launch_test(self):
+        """ Launch the test """
+        try:
+            candidat = self.users_combo.currentText()
+            themes = []
+            if self.free_choice_frame.isVisible():
+                themes = []
+                self.theme_type = 0
+                for checkbox in self.themes_checkbox_dict.items():
+                    if checkbox[1].isChecked():
+                        themes.append(checkbox[0])
+                if len(themes) == 0:
+                    display_error(self, "Veuillez sélectionner au moins un thème")
+                    return
+
+            elif self.define_choice_frame.isVisible():
+                self.theme_type = 1
+                themes = [self.define_choice_combo.currentText()]
+
+            timer_state = self.time_checkbox.isChecked()
+            timer = self.time_combo.currentText()
+            number_of_questions = self.num_questions_combo.currentText()
+            questions = self.questions
+            series = self.series
+
+            if self.test_win is not None:
+                self.test_win.close()
+            else:
+                dialog = QMessageBox()
+                rep = dialog.question(self,
+                                      "Commencer",
+                                      "Etes vous prèt à commencer le test?",
+                                      dialog.Yes | dialog.No)
+                if rep == dialog.Yes:
+                    pass
+                elif rep == dialog.No:
+                    return
+
+                self.test_win = TestWindow(self, candidat, themes, timer_state, timer,
+                                           number_of_questions, questions, series, self.theme_type)
+                self.test_win.show()
+                self.exit_flag = True
+                self.close()
+        except Exception as e:
+            print(e)
+
     def toggle_timer(self, event):
         """ Enable or disable timer """
         if event:
@@ -226,25 +277,30 @@ class TestLauncherWindow(QWidget):
 
     def set_number_of_questions(self):
         """ Set  """
-        try:
-            number_themes = 0
-            for checkbox in self.themes_checkbox_dict.values():
-                if checkbox.isChecked():
-                    number_themes += 1
-            if number_themes == 0:
-                self.num_questions_combo.setDisabled(True)
-            else:
-                num_questions_list = []
-                for i in range(number_themes, number_themes * 6 + 1):
-                    if i % number_themes == 0:
-                        num_questions_list.append(str(i))
-                self.num_questions_combo.setEnabled(True)
-                self.num_questions_combo.clear()
-                self.num_questions_combo.addItems(num_questions_list)
-                for i in range(0, self.num_questions_combo.count()):
-                    self.num_questions_combo.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
-        except Exception as e:
-            print(e)
+        number_themes = 0
+        for checkbox in self.themes_checkbox_dict.values():
+            if checkbox.isChecked():
+                number_themes += 1
+
+        num_questions_list = []
+        if number_themes == 0:
+            self.num_questions_combo.setDisabled(True)
+        elif 0 < number_themes < 6:
+            for i in range(number_themes, 50, 2):
+                num_questions_list.append(str(i))
+            self.num_questions_combo.setEnabled(True)
+            self.num_questions_combo.clear()
+            self.num_questions_combo.addItems(num_questions_list)
+        else:
+            for i in range(number_themes, number_themes * 6 + 1):
+                if i % number_themes == 0:
+                    num_questions_list.append(str(i))
+            self.num_questions_combo.setEnabled(True)
+            self.num_questions_combo.clear()
+            self.num_questions_combo.addItems(num_questions_list)
+
+        for i in range(0, self.num_questions_combo.count()):
+            self.num_questions_combo.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
 
     def select_all_themes(self):
         """ Select all themes """
@@ -309,6 +365,57 @@ class TestLauncherWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
+        if not self.exit_flag:
+            self.master.enable_buttons()
         self.master.test_launcher_win = None
-        self.master.enable_buttons()
         # self.master.show()
+
+
+class TestWindow(QWidget):
+    """ Test WIndow
+    theme_type: 0 free / 1 serie
+    """
+
+    def __init__(self, master, candidat, themes, timer_state,
+                 timer, number_of_questions, questions, series, theme_type):
+        super().__init__()
+        self.main_ui = master.master
+        self.master = master
+        self.candidat = candidat
+        self.themes = themes
+        self.theme_type = theme_type
+        self.timer_state = timer_state
+        self.timer = timer
+        self.number_of_questions = number_of_questions
+        self.questions = questions
+        self.series = series
+
+        # ### Window config
+        self.setFixedSize(900, 900)
+        self.setWindowFlags(Qt.WindowCloseButtonHint)
+        self.setWindowTitle(f"Examen du candidat: {self.candidat}")
+        self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
+
+        # Main Layout
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        # Info Layout
+        self.info_layout = QHBoxLayout()
+        self.main_layout.addLayout(self.info_layout)
+
+        # Image
+        self.image_label = QLabel()
+        self.main_layout.addWidget(self.image_label)
+
+        # Response Layout
+        self.responses_layout = QVBoxLayout()
+        self.main_layout.addLayout(self.responses_layout)
+
+        # Buttons Layout
+        self.buttons_layout = QHBoxLayout()
+        self.main_layout.addLayout(self.buttons_layout)
+
+    def closeEvent(self, a0: QCloseEvent):
+        """ Close Event """
+        self.main_ui.enable_buttons()

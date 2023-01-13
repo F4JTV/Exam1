@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QToolButton, QHBoxLayout,
                              QPushButton, QTableWidget, QTableWidgetItem,
                              QHeaderView, QDialog, QFormLayout, QLineEdit, QMessageBox)
 
+from modules.contants import display_error
+
 class UsersManagementWindow(QWidget):
     """ Users Management Window """
 
@@ -550,13 +552,3 @@ class EditUserWindow(QDialog):
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         self.master.edit_user_win = None
-
-
-def display_error(master, error):
-    """ Display the given error """
-    error_win = QMessageBox(master)
-    error_win.setText(error)
-    error_win.setWindowTitle("Erreur")
-    error_win.setIcon(QMessageBox.Critical)
-    error_win.setModal(True)
-    error_win.exec_()

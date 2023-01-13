@@ -1,5 +1,7 @@
 import json
 
+from PyQt5.QtWidgets import QMessageBox
+
 THEMES_DICT = {
     305: "Questions entrainement",
     206: "Electricité de base",
@@ -69,3 +71,12 @@ def get_questions():
     """ Get all the questions """
     with open("./questions/questions.json") as questions_files:
         return json.load(questions_files)
+
+def display_error(master, error):
+    """ Display the given error """
+    error_win = QMessageBox(master)
+    error_win.setText(error)
+    error_win.setWindowTitle("Erreur")
+    error_win.setIcon(QMessageBox.Critical)
+    error_win.setModal(True)
+    error_win.exec_()
