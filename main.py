@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     # Load Style
     try:
-        with open("./style/Combinear.qss", "r") as style:
+        with open("./style/Combinear.qss", "r", encoding="utf-8") as style:
             qss = style.read()
             app.setStyleSheet(qss)
     except FileNotFoundError:
@@ -35,7 +35,6 @@ if __name__ == "__main__":
     splash.show()
 
     window = MainWindow()
-    assert (window.locale().language() == QLocale.French)
     window.setWindowOpacity(0.0)
     splash.finish(window)
     window.show()
