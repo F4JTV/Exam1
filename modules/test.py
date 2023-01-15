@@ -1,7 +1,7 @@
 """ Test Windows """
 import random
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QCloseEvent, QPixmap
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QGroupBox,
                              QPushButton, QComboBox, QFrame, QToolBox,
@@ -9,6 +9,8 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QGroupBox,
 
 from modules.users_management import UsersListWindow
 from modules.contants import *
+
+IMAGE_SIZE = QSize(770, 400)
 
 
 class TestLauncherWindow(QWidget):
@@ -224,11 +226,11 @@ class TestLauncherWindow(QWidget):
             candidat = self.users_combo.currentText()
             themes = []
             if self.free_choice_frame.isVisible():
-                themes = []
                 self.theme_type = 0
                 for checkbox in self.themes_checkbox_dict.items():
                     if checkbox[1].isChecked():
                         themes.append(checkbox[0])
+
                 if len(themes) == 0:
                     display_error(self, "Veuillez sélectionner au moins un thème")
                     return
@@ -259,8 +261,9 @@ class TestLauncherWindow(QWidget):
                                            self.series, self.theme_type)
                 self.test_win.show()
                 self.exit_flag = True
-                self.close()
                 self.master.hide()
+                self.close()
+
         except Exception as e:
             print(e)
 
@@ -409,7 +412,7 @@ class TestWindow(QWidget):
         self.responses_dict = dict()
 
         # #################### Window config
-        # self.setFixedSize(900, 900)
+        self.setFixedSize(820, 670)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle(f"Examen du candidat: {self.candidat}")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
@@ -420,7 +423,9 @@ class TestWindow(QWidget):
 
         # #################### Info Layout
         self.info_layout = QHBoxLayout()
-        self.main_layout.addLayout(self.info_layout)
+        self.info_groupbox = QGroupBox()
+        self.info_groupbox.setLayout(self.info_layout)
+        self.main_layout.addWidget(self.info_groupbox, 1)
 
         # Info Layout Widgets
         self.question_number_label = QLabel()
@@ -428,6 +433,9 @@ class TestWindow(QWidget):
         self.number_question_asked = QLabel()
         self.time_left_label = QLabel()
         self.timer_progressbar = QProgressBar()
+
+        # Info Layout Widgets Config
+        self.timer_progressbar.setFixedWidth(250)
 
         # Info Layout Widgets Placement
         self.info_layout.addWidget(self.question_number_label)
@@ -437,12 +445,18 @@ class TestWindow(QWidget):
         self.info_layout.addWidget(self.timer_progressbar)
 
         # #################### Image
+        self.image_layout = QVBoxLayout()
         self.image_label = QLabel()
-        self.main_layout.addWidget(self.image_label)
+        self.image_groupbox = QGroupBox()
+        self.image_groupbox.setLayout(self.image_layout)
+        self.image_layout.addWidget(self.image_label, 1, Qt.AlignCenter)
+        self.main_layout.addWidget(self.image_groupbox, 5)
 
         # #################### Response Layout
         self.responses_layout = QVBoxLayout()
-        self.main_layout.addLayout(self.responses_layout)
+        self.responses_groupbox = QGroupBox("Réponses")
+        self.responses_groupbox.setLayout(self.responses_layout)
+        self.main_layout.addWidget(self.responses_groupbox, 2)
 
         # Response Layout Widgets
         self.responses_grp = QButtonGroup()
@@ -451,12 +465,13 @@ class TestWindow(QWidget):
         self.response_3_checkbox = QCheckBox()
         self.response_4_checkbox = QCheckBox()
         self.no_response_checkbox = QCheckBox()
-        self.responses_grp.addButton(self.response_1_checkbox)
-        self.responses_grp.addButton(self.response_2_checkbox)
-        self.responses_grp.addButton(self.response_3_checkbox)
-        self.responses_grp.addButton(self.response_4_checkbox)
-        self.responses_grp.addButton(self.no_response_checkbox)
-        self.responses_grp.buttonToggled.connect(self.save_response)
+        self.responses_grp.addButton(self.response_1_checkbox, 0)
+        self.responses_grp.addButton(self.response_2_checkbox, 1)
+        self.responses_grp.addButton(self.response_3_checkbox, 2)
+        self.responses_grp.addButton(self.response_4_checkbox, 3)
+        self.responses_grp.addButton(self.no_response_checkbox, 5)
+        # noinspection PyUnresolvedReferences
+        self.responses_grp.buttonClicked.connect(self.save_response)
 
         # Response Layout Widgets Placement
         self.responses_layout.addWidget(self.response_1_checkbox)
@@ -466,13 +481,16 @@ class TestWindow(QWidget):
 
         # #################### Buttons Layout
         self.buttons_layout = QHBoxLayout()
-        self.main_layout.addLayout(self.buttons_layout)
+        self.buttons_groupbox = QGroupBox()
+        self.buttons_groupbox.setLayout(self.buttons_layout)
+        self.main_layout.addWidget(self.buttons_groupbox, 1)
 
         # Buttons Layout Widgets
         self.previous_button = QPushButton("Question précédente")
         self.recap_button = QPushButton("Récapitulatif")
         self.clear_response_button = QPushButton("Effacer réponse")
         self.terminate_button = QPushButton("Terminer")
+        self.go_to_question = QComboBox()
         self.next_button = QPushButton("Question suivante")
 
         # Buttons Layout Widgets Placement
@@ -480,38 +498,64 @@ class TestWindow(QWidget):
         self.buttons_layout.addWidget(self.recap_button)
         self.buttons_layout.addWidget(self.clear_response_button)
         self.buttons_layout.addWidget(self.terminate_button)
+        self.buttons_layout.addWidget(self.go_to_question)
         self.buttons_layout.addWidget(self.next_button)
 
         # Buttons config
         self.next_button.clicked.connect(self.increment_index)
         self.previous_button.clicked.connect(self.decrement_index)
-        self.clear_response_button.clicked.connect(lambda: self.no_response_checkbox.setChecked(True))
+        self.clear_response_button.clicked.connect(self.remove_response)
+        self.go_to_question.setFixedWidth(50)
+        self.go_to_question.addItems(str(i) for i in range(1, int(self.number_of_questions) + 1))
+        self.go_to_question.setEditable(True)
+        self.go_to_question.lineEdit().setReadOnly(True)
+        self.go_to_question.lineEdit().setAlignment(Qt.AlignCenter)
+        for i in range(0, self.go_to_question.count()):
+            self.go_to_question.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
+        # noinspection PyUnresolvedReferences
+        self.go_to_question.activated.connect(lambda: self.go_to(self.go_to_question.currentText()))
 
         self.init_test_questions()
         self.display_first_question()
 
-    def save_response(self):
-        if self.no_response_checkbox.isChecked():
-            return
+    def go_to(self, index):
+        if int(index) - 1  < self.question_index or int(index) - 1 > self.question_index:
+            self.question_index = int(index) - 1
+            self.display_question()
+        else:
+            pass
 
-        self.responses_dict[self.question_index] = {"button": self.responses_grp.checkedButton(),
-                                                    "response": self.responses_grp.checkedButton().text()}
+
+    def remove_response(self):
+        """ Remove response from responses_dict """
+        self.no_response_checkbox.setChecked(True)
+        if self.question_index in self.responses_dict:
+            self.responses_dict.pop(self.question_index)
         self.number_question_asked.setText(f"Répondu à: {len(self.responses_dict)}/{self.number_of_questions}")
 
-        print(self.responses_dict)
+    def save_response(self):
+        """ Save the response in the response dict """
+        if self.no_response_checkbox.isChecked():
+            return
+        else:
+            self.responses_dict[self.question_index] = {"button": self.responses_grp.checkedButton(),
+                                                        "response": self.responses_grp.checkedId()}
+        self.number_question_asked.setText(f"Répondu à: {len(self.responses_dict)}/{self.number_of_questions}")
 
     def display_first_question(self):
         """ Display the first question """
         self.previous_button.setDisabled(True)
         first = self.choosen_questions_list[0]
         self.question_number_label.setText(first["num"])
-        self.question_index_label.setText("1/20")
-        self.number_question_asked.setText("Répondu à: 0/20")
-        self.image_label.setPixmap(QPixmap(f"./questions/{first['num']}.png"))
-        self.response_1_checkbox.setText(first["propositions"][0])
-        self.response_2_checkbox.setText(first["propositions"][1])
-        self.response_3_checkbox.setText(first["propositions"][2])
-        self.response_4_checkbox.setText(first["propositions"][3])
+        self.question_index_label.setText(f"1/{self.number_of_questions}")
+        self.number_question_asked.setText(f"Répondu à: 0/{self.number_of_questions}")
+        pix = QPixmap(f"./questions/{first['num']}.png")
+        pixmap = pix.scaled(IMAGE_SIZE)
+        self.image_label.setPixmap(pixmap)
+        self.response_1_checkbox.setText(first["propositions"][0].replace('\n', ''))
+        self.response_2_checkbox.setText(first["propositions"][1].replace('\n', ''))
+        self.response_3_checkbox.setText(first["propositions"][2].replace('\n', ''))
+        self.response_4_checkbox.setText(first["propositions"][3].replace('\n', ''))
 
     def increment_index(self):
         """ Increment Index """
@@ -522,10 +566,13 @@ class TestWindow(QWidget):
             self.display_question()
 
     def config_buttons(self):
+        """ Enable/Disable Next/Previous Buttons """
         if self.question_index + 1 == int(self.number_of_questions):
             self.next_button.setDisabled(True)
+            self.previous_button.setEnabled(True)
         elif self.question_index == 0:
             self.previous_button.setDisabled(True)
+            self.next_button.setEnabled(True)
         else:
             self.next_button.setEnabled(True)
             self.previous_button.setEnabled(True)
@@ -550,46 +597,63 @@ class TestWindow(QWidget):
             next_question = self.choosen_questions_list[self.question_index]
             self.question_number_label.setText(next_question["num"])
             self.question_index_label.setText(f"{self.question_index + 1}/{self.number_of_questions}")
-
-            self.image_label.setPixmap(QPixmap(f"./questions/{next_question['num']}.png"))
-            self.response_1_checkbox.setText(next_question["propositions"][0])
-            self.response_2_checkbox.setText(next_question["propositions"][1])
-            self.response_3_checkbox.setText(next_question["propositions"][2])
-            self.response_4_checkbox.setText(next_question["propositions"][3])
+            pix = QPixmap(f"./questions/{next_question['num']}.png")
+            pixmap = pix.scaled(IMAGE_SIZE)
+            self.image_label.setPixmap(pixmap)
+            self.response_1_checkbox.setText(next_question["propositions"][0].replace('\n', ''))
+            self.response_2_checkbox.setText(next_question["propositions"][1].replace('\n', ''))
+            self.response_3_checkbox.setText(next_question["propositions"][2].replace('\n', ''))
+            self.response_4_checkbox.setText(next_question["propositions"][3].replace('\n', ''))
         except Exception as e:
-            print(e)
+            print("display_question", e)
 
     def init_test_questions(self):
         """ Init questions """
-        self.choosen_questions_list = []
+        try:
+            self.choosen_questions_list = []
 
-        # if free themes choosen
-        if self.theme_type == 0:
-            # get the number of question by theme
-            question_by_theme = int(self.number_of_questions) // len(self.themes)
+            # if free themes choosen
+            if self.theme_type == 0:
+                # get the number of question by theme
+                question_by_theme = int(self.number_of_questions) // len(self.themes)
 
-            # get all the questions for each theme
-            for theme in self.themes:
-                self.test_questions_dict[theme] = []
-                for question in self.questions["questions"]:
-                    if str(question["themeNum"]) == theme:
-                        self.test_questions_dict[theme].append(question)
+                # get all the questions for each theme
+                for theme in self.themes:
+                    self.test_questions_dict[theme] = []
+                    for question in self.questions["questions"]:
+                        if str(question["themeNum"]) == theme:
+                            self.test_questions_dict[theme].append(question)
 
-            # get random questions for each theme
-            for theme in self.themes:
-                for index in range(0, question_by_theme):
-                    q = self.test_questions_dict[theme][random.randint(0, len(self.test_questions_dict[theme]))]
-                    self.choosen_questions_list.append(q)
+                # get random questions for each theme
+                for theme in self.themes:
+                    choosen_question = []
+                    for index in range(0, question_by_theme):
+                        num = random.randint(0, len(self.test_questions_dict[theme]) - 1)
+                        while num in choosen_question:
+                            num = random.randint(0, len(self.test_questions_dict[theme]) - 1)
+                        choosen_question.append(num)
+                        q = self.test_questions_dict[theme][num]
+                        self.choosen_questions_list.append(q)
 
-        # if serie choosen
-        elif self.theme_type == 1:
-            for quest_num in self.series[self.themes[0]].values():
-                for question in self.questions["questions"]:
-                    if question["num"] == quest_num:
-                        self.choosen_questions_list.append(question)
+            # if serie choosen
+            elif self.theme_type == 1:
+                for quest_num in self.series[self.themes[0]].values():
+                    for question in self.questions["questions"]:
+                        if question["num"] == quest_num:
+                            self.choosen_questions_list.append(question)
+        except Exception as e:
+            print("init_test_questions", e)
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
 
         self.main_ui.enable_buttons()
         self.main_ui.show()
+
+
+class RecapWindow(QWidget):
+    """ Recap Window """
+
+    def __init__(self, master):
+        super().__init__()
+        self.master = master

@@ -6,9 +6,11 @@ from PyQt5.QtGui import QIcon, QCloseEvent, QFont, QPixmap
 from PyQt5.QtWidgets import (QHBoxLayout, QTableWidget, QWidget,
                              QTableWidgetItem, QHeaderView, QVBoxLayout,
                              QLabel, QGroupBox, QPushButton, QScrollBar,
-                             QGridLayout, QComboBox)
+                             QGridLayout, QComboBox, QScrollArea)
 
 from modules.contants import *
+
+IMAGE_SIZE = QSize(770, 400)
 
 
 class AllQuestionsWindow(QWidget):
@@ -217,10 +219,16 @@ class QuestionWindow(QWidget):
         self.setLayout(self.main_layout)
 
         # Image Label
+        self.img_groupbox = QGroupBox()
         self.img_label = QLabel()
-        self.img_label.setFixedSize(770, 350)
-        self.img_label.setPixmap(QPixmap(f"./questions/{num}.png"))
-        self.main_layout.addWidget(self.img_label, 5, Qt.AlignCenter)
+        self.img_layout = QVBoxLayout()
+        self.img_groupbox.setLayout(self.img_layout)
+        self.img_layout.addWidget(self.img_label)
+        # self.img_label.setFixedSize(770, 350)
+        pix = QPixmap(f"./questions/{num}.png")
+        pixmap = pix.scaled(IMAGE_SIZE)
+        self.img_label.setPixmap(pixmap)
+        self.main_layout.addWidget(self.img_groupbox, 5, Qt.AlignCenter)
 
         # Detail Comment Layout
         self.detail_comment_layout = QHBoxLayout()
@@ -273,11 +281,16 @@ class QuestionWindow(QWidget):
             self.comment_label = QLabel(f"{self.cours}")
         else:
             self.comment_label = QLabel(f"{self.commentaire}\n{self.cours}")
+        self.scroll = QScrollArea()
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.comment_label)
         self.comment_label.setObjectName("BlackLabel")
         self.comment_label.setWordWrap(True)
         self.comment_label.setAlignment(Qt.AlignJustify)
         self.comment_group.setLayout(self.comment_layout)
-        self.comment_layout.addWidget(self.comment_label, 1)
+        self.comment_layout.addWidget(self.scroll, 1)
         self.detail_comment_layout.addWidget(self.comment_group, 2)
 
         # Response Layout
@@ -339,8 +352,10 @@ class QuestionWindow(QWidget):
         theme_num = info_question["themeNum"]
         commentaire = info_question["commentaire"]
         cours = info_question["cours"]
+        pix = QPixmap(f"./questions/{num}.png")
+        pixmap = pix.scaled(IMAGE_SIZE)
 
-        self.img_label.setPixmap(QPixmap(f"./questions/{num}.png"))
+        self.img_label.setPixmap(pixmap)
         self.choice_1.setText(f"1:\t" + propositions[0].replace('\n', ''))
         self.choice_2.setText(f"2:\t" + propositions[1].replace('\n', ''))
         self.choice_3.setText(f"3:\t" + propositions[2].replace('\n', ''))
