@@ -18,12 +18,12 @@ if __name__ == "__main__":
     app.installTranslator(translator)
 
     # Load Style
-    try:
+    """try:
         with open("./style/Combinear.qss", "r", encoding="utf-8") as style:
             qss = style.read()
             app.setStyleSheet(qss)
     except FileNotFoundError:
-        pass
+        pass"""
 
     # Load fonts
     QFontDatabase.addApplicationFont("./font/Lato-Regular.ttf")

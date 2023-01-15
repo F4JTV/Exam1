@@ -406,7 +406,7 @@ class TestWindow(QWidget):
         self.test_questions_dict = dict()
         self.choosen_questions_list = list()
         self.question_index = 0
-        self.responses_list = list()
+        self.responses_dict = dict()
 
         # #################### Window config
         # self.setFixedSize(900, 900)
@@ -450,10 +450,13 @@ class TestWindow(QWidget):
         self.response_2_checkbox = QCheckBox()
         self.response_3_checkbox = QCheckBox()
         self.response_4_checkbox = QCheckBox()
+        self.no_response_checkbox = QCheckBox()
         self.responses_grp.addButton(self.response_1_checkbox)
         self.responses_grp.addButton(self.response_2_checkbox)
         self.responses_grp.addButton(self.response_3_checkbox)
         self.responses_grp.addButton(self.response_4_checkbox)
+        self.responses_grp.addButton(self.no_response_checkbox)
+        self.responses_grp.buttonToggled.connect(self.save_response)
 
         # Response Layout Widgets Placement
         self.responses_layout.addWidget(self.response_1_checkbox)
@@ -482,12 +485,24 @@ class TestWindow(QWidget):
         # Buttons config
         self.next_button.clicked.connect(self.increment_index)
         self.previous_button.clicked.connect(self.decrement_index)
+        self.clear_response_button.clicked.connect(lambda: self.no_response_checkbox.setChecked(True))
 
         self.init_test_questions()
         self.display_first_question()
 
+    def save_response(self):
+        if self.no_response_checkbox.isChecked():
+            return
+
+        self.responses_dict[self.question_index] = {"button": self.responses_grp.checkedButton(),
+                                                    "response": self.responses_grp.checkedButton().text()}
+        self.number_question_asked.setText(f"Répondu à: {len(self.responses_dict)}/{self.number_of_questions}")
+
+        print(self.responses_dict)
+
     def display_first_question(self):
         """ Display the first question """
+        self.previous_button.setDisabled(True)
         first = self.choosen_questions_list[0]
         self.question_number_label.setText(first["num"])
         self.question_index_label.setText("1/20")
@@ -500,11 +515,20 @@ class TestWindow(QWidget):
 
     def increment_index(self):
         """ Increment Index """
-        if self.question_index + 1 == self.number_of_questions:
+        if self.question_index + 1 == int(self.number_of_questions):
             return
         else:
             self.question_index += 1
-            self.display_next_question()
+            self.display_question()
+
+    def config_buttons(self):
+        if self.question_index + 1 == int(self.number_of_questions):
+            self.next_button.setDisabled(True)
+        elif self.question_index == 0:
+            self.previous_button.setDisabled(True)
+        else:
+            self.next_button.setEnabled(True)
+            self.previous_button.setEnabled(True)
 
     def decrement_index(self):
         """ Decrement Index """
@@ -512,15 +536,28 @@ class TestWindow(QWidget):
             return
         else:
             self.question_index -= 1
-            self.display_previous_question()
+            self.display_question()
 
-    def display_next_question(self):
+    def display_question(self):
         """ Display the next question """
-        pass
+        self.config_buttons()
+        try:
+            if self.question_index in self.responses_dict.keys():
+                self.responses_dict[self.question_index]["button"].setChecked(True)
+            else:
+                self.no_response_checkbox.setChecked(True)
 
-    def display_previous_question(self):
-        """ Display the previous question """
-        pass
+            next_question = self.choosen_questions_list[self.question_index]
+            self.question_number_label.setText(next_question["num"])
+            self.question_index_label.setText(f"{self.question_index + 1}/{self.number_of_questions}")
+
+            self.image_label.setPixmap(QPixmap(f"./questions/{next_question['num']}.png"))
+            self.response_1_checkbox.setText(next_question["propositions"][0])
+            self.response_2_checkbox.setText(next_question["propositions"][1])
+            self.response_3_checkbox.setText(next_question["propositions"][2])
+            self.response_4_checkbox.setText(next_question["propositions"][3])
+        except Exception as e:
+            print(e)
 
     def init_test_questions(self):
         """ Init questions """
