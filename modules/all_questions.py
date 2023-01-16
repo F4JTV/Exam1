@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QTableWidget, QWidget,
 
 from modules.contants import *
 
-IMAGE_SIZE = QSize(770, 400)
+IMAGE_SIZE = QSize(770, 450)
 
 
 class AllQuestionsWindow(QWidget):
@@ -208,7 +208,7 @@ class QuestionWindow(QWidget):
         self.current_index = index
 
         # ### Window config
-        self.setFixedSize(QSize(800, 850))
+        self.setFixedSize(QSize(800, 900))
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle(f"Question numéro: {self.num}")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))

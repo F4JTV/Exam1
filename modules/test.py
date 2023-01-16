@@ -1,7 +1,7 @@
 """ Test Windows """
 import random
 
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QTimer, QTime
 from PyQt5.QtGui import QIcon, QCloseEvent, QPixmap
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QGroupBox,
                              QPushButton, QComboBox, QFrame, QToolBox,
@@ -10,7 +10,16 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QGroupBox,
 from modules.users_management import UsersListWindow
 from modules.contants import *
 
-IMAGE_SIZE = QSize(770, 400)
+IMAGE_SIZE = QSize(770, 420)
+TIME_DICT = {"5 minutes": 5,
+             "10 minutes": 10,
+             "15 minutes - Règlementation": 15,
+             "20 minutes": 20,
+             "30 minutes - Technique": 30,
+             "45 minutes - Règlementation aménagée": 45,
+             "60 minutes": 60,
+             "75 minutes": 75,
+             "90 minutes - Technique aménagée": 90}
 
 
 class TestLauncherWindow(QWidget):
@@ -24,15 +33,6 @@ class TestLauncherWindow(QWidget):
         self.questions = get_questions()
         self.users_list_win = None
         self.test_win = None
-        self.time_dict = {"5 minutes": 5,
-                          "10 minutes": 10,
-                          "15 minutes - Règlementation": 15,
-                          "20 minutes": 20,
-                          "30 minutes - Technique": 30,
-                          "45 minutes - Règlementation aménagée": 45,
-                          "60 minutes": 60,
-                          "75 minutes": 75,
-                          "90 minutes - Technique aménagée": 90}
         self.exit_flag = False
         self.theme_type = 0
 
@@ -196,7 +196,7 @@ class TestLauncherWindow(QWidget):
         self.time_combo.setEditable(True)
         self.time_combo.lineEdit().setReadOnly(True)
         self.time_combo.lineEdit().setAlignment(Qt.AlignCenter)
-        self.time_combo.addItems([key for key in self.time_dict.keys()])
+        self.time_combo.addItems([key for key in TIME_DICT.keys()])
         for i in range(0, self.time_combo.count()):
             self.time_combo.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
         # noinspection PyUnresolvedReferences
@@ -410,9 +410,10 @@ class TestWindow(QWidget):
         self.choosen_questions_list = list()
         self.question_index = 0
         self.responses_dict = dict()
+        self.stopped_by_timer = False
 
         # #################### Window config
-        self.setFixedSize(820, 670)
+        # self.setFixedSize(820, 670)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle(f"Examen du candidat: {self.candidat}")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
@@ -431,8 +432,10 @@ class TestWindow(QWidget):
         self.question_number_label = QLabel()
         self.question_index_label = QLabel()
         self.number_question_asked = QLabel()
-        self.time_left_label = QLabel()
+        self.time_left = QTime(0, 0, 0)
+        self.time_left = self.time_left.addMSecs(TIME_DICT[self.timer] * 60000)
         self.timer_progressbar = QProgressBar()
+        self.time_left_label = QLabel(self.time_left.toString("hh:mm:ss"))
 
         # Info Layout Widgets Config
         self.timer_progressbar.setFixedWidth(250)
@@ -505,7 +508,7 @@ class TestWindow(QWidget):
         self.next_button.clicked.connect(self.increment_index)
         self.previous_button.clicked.connect(self.decrement_index)
         self.clear_response_button.clicked.connect(self.remove_response)
-        self.go_to_question.setFixedWidth(50)
+        self.go_to_question.setFixedWidth(60)
         self.go_to_question.addItems(str(i) for i in range(1, int(self.number_of_questions) + 1))
         self.go_to_question.setEditable(True)
         self.go_to_question.lineEdit().setReadOnly(True)
@@ -515,16 +518,38 @@ class TestWindow(QWidget):
         # noinspection PyUnresolvedReferences
         self.go_to_question.activated.connect(lambda: self.go_to(self.go_to_question.currentText()))
 
+        # ################# Timer
+        self.countdown = QTimer()
+        self.countdown.setSingleShot(True)
+        # noinspection PyUnresolvedReferences
+        self.countdown.timeout.connect(self.stop_test_by_timer)
+        # self.countdown.setInterval(TIME_DICT[self.timer] * 60000)
+        self.countdown.setInterval(3000)
+
+        self.display_timer = QTimer()
+        self.display_timer.setInterval(100)
+        # noinspection PyUnresolvedReferences
+        self.display_timer.timeout.connect(lambda: print(self.countdown.remainingTime()))
+
+        if self.timer_state:
+            self.countdown.start()
+            self.display_timer.start()
+
         self.init_test_questions()
         self.display_first_question()
 
+    def stop_test_by_timer(self):
+        """ Stopped by timer """
+        self.stopped_by_timer = True
+        self.close()
+
     def go_to(self, index):
+        """ Go to the index question """
         if int(index) - 1  < self.question_index or int(index) - 1 > self.question_index:
             self.question_index = int(index) - 1
             self.display_question()
         else:
             pass
-
 
     def remove_response(self):
         """ Remove response from responses_dict """
@@ -550,7 +575,7 @@ class TestWindow(QWidget):
         self.question_index_label.setText(f"1/{self.number_of_questions}")
         self.number_question_asked.setText(f"Répondu à: 0/{self.number_of_questions}")
         pix = QPixmap(f"./questions/{first['num']}.png")
-        pixmap = pix.scaled(IMAGE_SIZE)
+        pixmap = pix.scaled(IMAGE_SIZE, Qt.KeepAspectRatio)
         self.image_label.setPixmap(pixmap)
         self.response_1_checkbox.setText(first["propositions"][0].replace('\n', ''))
         self.response_2_checkbox.setText(first["propositions"][1].replace('\n', ''))
@@ -598,12 +623,14 @@ class TestWindow(QWidget):
             self.question_number_label.setText(next_question["num"])
             self.question_index_label.setText(f"{self.question_index + 1}/{self.number_of_questions}")
             pix = QPixmap(f"./questions/{next_question['num']}.png")
-            pixmap = pix.scaled(IMAGE_SIZE)
+            pixmap = pix.scaled(IMAGE_SIZE, Qt.KeepAspectRatio)
             self.image_label.setPixmap(pixmap)
             self.response_1_checkbox.setText(next_question["propositions"][0].replace('\n', ''))
             self.response_2_checkbox.setText(next_question["propositions"][1].replace('\n', ''))
             self.response_3_checkbox.setText(next_question["propositions"][2].replace('\n', ''))
             self.response_4_checkbox.setText(next_question["propositions"][3].replace('\n', ''))
+            self.adjustSize()
+            self.setFixedSize(self.width(), self.height())
         except Exception as e:
             print("display_question", e)
 
@@ -646,6 +673,29 @@ class TestWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
+        if self.stopped_by_timer:
+            self.countdown.stop()
+            self.display_timer.stop()
+            timeout_win = QMessageBox(self)
+            timeout_win.setText("Fin du temps rêglementaire,\n"
+                                "voir les résultats.")
+            timeout_win.setWindowTitle("Fin du temps")
+            timeout_win.setIcon(QMessageBox.Icon.Information)
+            timeout_win.setModal(True)
+            timeout_win.exec_()
+        else:
+            dialog = QMessageBox()
+            rep = dialog.question(self,
+                                  "Arrèter le test",
+                                  "Voullez vous arrèter le test,\n"
+                                  "les résultats ne seront pas sauvegarder",
+                                  dialog.StandardButton.Yes | dialog.StandardButton.No)
+            if rep == dialog.StandardButton.Yes:
+                self.countdown.stop()
+                self.display_timer.stop()
+            elif rep == dialog.StandardButton.No:
+                QCloseEvent.ignore(a0)
+                return
 
         self.main_ui.enable_buttons()
         self.main_ui.show()
