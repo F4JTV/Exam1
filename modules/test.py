@@ -2,10 +2,11 @@
 import random
 
 from PyQt5.QtCore import Qt, QSize, QTimer, QTime
-from PyQt5.QtGui import QIcon, QCloseEvent, QPixmap
+from PyQt5.QtGui import QIcon, QCloseEvent, QPixmap, QFont
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QGroupBox,
                              QPushButton, QComboBox, QFrame, QToolBox,
-                             QCheckBox, QLabel, QProgressBar, QButtonGroup)
+                             QCheckBox, QLabel, QProgressBar, QButtonGroup,
+                             QTableWidget, QTableWidgetItem, QHeaderView)
 
 from modules.users_management import UsersListWindow
 from modules.contants import *
@@ -411,6 +412,8 @@ class TestWindow(QWidget):
         self.question_index = 0
         self.responses_dict = dict()
         self.stopped_by_timer = False
+        self.stopped_by_user = False
+        self.recap_win = None
 
         # #################### Window config
         # self.setFixedSize(820, 670)
@@ -435,17 +438,28 @@ class TestWindow(QWidget):
         self.time_left = QTime(0, 0, 0)
         self.time_left = self.time_left.addMSecs(TIME_DICT[self.timer] * 60000)
         self.timer_progressbar = QProgressBar()
-        self.time_left_label = QLabel(self.time_left.toString("hh:mm:ss"))
 
         # Info Layout Widgets Config
         self.timer_progressbar.setFixedWidth(250)
 
+        if self.timer_state:
+            self.timer_progressbar.setTextVisible(True)
+            self.timer_progressbar.setMaximum(TIME_DICT[self.timer] * 60000)
+            self.timer_progressbar.setMinimum(0)
+            self.timer_progressbar.setValue(0)
+            self.time_left_label = QLabel(self.time_left.toString("hh:mm:ss"))
+        else:
+            self.timer_progressbar.setTextVisible(False)
+            self.timer_progressbar.setValue(0)
+            self.time_left_label = QLabel("Compte à rebourd désactivé")
+
         # Info Layout Widgets Placement
-        self.info_layout.addWidget(self.question_number_label)
-        self.info_layout.addWidget(self.question_index_label)
-        self.info_layout.addWidget(self.number_question_asked)
-        self.info_layout.addWidget(self.time_left_label)
-        self.info_layout.addWidget(self.timer_progressbar)
+        self.info_layout.addWidget(self.question_number_label, 1, Qt.AlignCenter)
+        self.info_layout.addWidget(self.question_index_label, 2, Qt.AlignCenter)
+        self.info_layout.addWidget(self.number_question_asked, 2, Qt.AlignCenter)
+        self.info_layout.addWidget(self.time_left_label, 2, Qt.AlignCenter)
+        if self.timer_state:
+            self.info_layout.addWidget(self.timer_progressbar, 3, Qt.AlignCenter)
 
         # #################### Image
         self.image_layout = QVBoxLayout()
@@ -517,19 +531,19 @@ class TestWindow(QWidget):
             self.go_to_question.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
         # noinspection PyUnresolvedReferences
         self.go_to_question.activated.connect(lambda: self.go_to(self.go_to_question.currentText()))
+        self.recap_button.clicked.connect(self.display_recap)
 
         # ################# Timer
         self.countdown = QTimer()
         self.countdown.setSingleShot(True)
         # noinspection PyUnresolvedReferences
         self.countdown.timeout.connect(self.stop_test_by_timer)
-        # self.countdown.setInterval(TIME_DICT[self.timer] * 60000)
-        self.countdown.setInterval(3000)
+        self.countdown.setInterval(TIME_DICT[self.timer] * 60000)
 
         self.display_timer = QTimer()
         self.display_timer.setInterval(100)
         # noinspection PyUnresolvedReferences
-        self.display_timer.timeout.connect(lambda: print(self.countdown.remainingTime()))
+        self.display_timer.timeout.connect(self.display_remaining_time)
 
         if self.timer_state:
             self.countdown.start()
@@ -537,6 +551,20 @@ class TestWindow(QWidget):
 
         self.init_test_questions()
         self.display_first_question()
+
+    def display_recap(self):
+        """ Display the recap Window """
+        if self.recap_win is not None:
+            return
+        self.recap_win = RecapWindow(self, self.number_of_questions, self.responses_dict, self.choosen_questions_list)
+        self.recap_win.show()
+
+    def display_remaining_time(self):
+        """ Display the remaining time """
+        self.time_left = QTime(0, 0, 0)
+        self.time_left = self.time_left.addMSecs(self.countdown.remainingTime())
+        self.time_left_label.setText(self.time_left.toString("hh:mm:ss"))
+        self.timer_progressbar.setValue(self.countdown.remainingTime())
 
     def stop_test_by_timer(self):
         """ Stopped by timer """
@@ -558,6 +586,9 @@ class TestWindow(QWidget):
             self.responses_dict.pop(self.question_index)
         self.number_question_asked.setText(f"Répondu à: {len(self.responses_dict)}/{self.number_of_questions}")
 
+        if self.recap_win is not None:
+            self.recap_win.reload_table(self.responses_dict)
+
     def save_response(self):
         """ Save the response in the response dict """
         if self.no_response_checkbox.isChecked():
@@ -566,6 +597,9 @@ class TestWindow(QWidget):
             self.responses_dict[self.question_index] = {"button": self.responses_grp.checkedButton(),
                                                         "response": self.responses_grp.checkedId()}
         self.number_question_asked.setText(f"Répondu à: {len(self.responses_dict)}/{self.number_of_questions}")
+
+        if self.recap_win is not None:
+            self.recap_win.reload_table(self.responses_dict)
 
     def display_first_question(self):
         """ Display the first question """
@@ -683,11 +717,13 @@ class TestWindow(QWidget):
             timeout_win.setIcon(QMessageBox.Icon.Information)
             timeout_win.setModal(True)
             timeout_win.exec_()
+        elif self.stopped_by_user:
+            pass
         else:
             dialog = QMessageBox()
             rep = dialog.question(self,
                                   "Arrèter le test",
-                                  "Voullez vous arrèter le test,\n"
+                                  "Voullez vous arrêter le test,\n"
                                   "les résultats ne seront pas sauvegarder",
                                   dialog.StandardButton.Yes | dialog.StandardButton.No)
             if rep == dialog.StandardButton.Yes:
@@ -697,6 +733,9 @@ class TestWindow(QWidget):
                 QCloseEvent.ignore(a0)
                 return
 
+        if self.recap_win is not None:
+            self.recap_win.close()
+
         self.main_ui.enable_buttons()
         self.main_ui.show()
 
@@ -704,6 +743,68 @@ class TestWindow(QWidget):
 class RecapWindow(QWidget):
     """ Recap Window """
 
-    def __init__(self, master):
+    def __init__(self, master, number_of_questions, responses_dict, questions_list):
         super().__init__()
         self.master = master
+        self.number_of_questions = number_of_questions
+        self.responses_dict = responses_dict
+        self.questions_list = questions_list
+
+        self.setFixedSize(320, 420)
+
+        # Main Layout
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        # Table responses
+        self.table_response = QTableWidget()
+        self.table_response.setFixedSize(QSize(300, 400))
+        self.table_response.setSortingEnabled(False)
+        self.table_response.setColumnCount(2)
+        self.table_response.setRowCount(int(self.number_of_questions))
+        self.table_response.horizontalHeader().setStretchLastSection(True)
+        self.table_response.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.table_response.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        self.index_header = QTableWidgetItem("Numéro question")
+        self.index_header.setFont(QFont("Lato", 12))
+        self.awsered_header = QTableWidgetItem("Réponse")
+        self.awsered_header.setFont(QFont("Lato", 12))
+        self.table_response.setHorizontalHeaderItem(0, self.index_header)
+        self.table_response.setHorizontalHeaderItem(1, self.awsered_header)
+        self.table_response.verticalHeader().setVisible(False)
+        self.table_response.setAlternatingRowColors(True)
+
+        self.main_layout.addWidget(self.table_response)
+        self.init_table()
+
+    def reload_table(self, response):
+        """ Reload the table  """
+        self.responses_dict = response
+        self.init_table()
+
+    def init_table(self):
+        """ Initialize the table """
+        try:
+            row = 0
+            for question in self.questions_list:
+                index_question = self.questions_list.index(question)
+                index = QTableWidgetItem(str(index_question + 1))
+                if index_question in self.responses_dict.keys():
+                    indicatif_item = QTableWidgetItem("X")
+                else:
+                    indicatif_item = QTableWidgetItem("")
+
+                indicatif_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                indicatif_item.setTextAlignment(Qt.AlignCenter)
+                index.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                index.setTextAlignment(Qt.AlignCenter)
+
+                self.table_response.setItem(row, 0, index)
+                self.table_response.setItem(row, 1, indicatif_item)
+                row += 1
+        except Exception as e:
+            print(e)
+
+    def closeEvent(self, a0: QCloseEvent):
+        """ Close Event """
+        self.master.recap_win = None
