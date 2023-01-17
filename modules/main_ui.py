@@ -48,6 +48,7 @@ class MainWindow(QMainWindow):
         self.asked_questions_win = None
         self.all_questions_win = None
         self.contribute_win = None
+        self.result_win = None
 
         # ### Central Widget
         self.central_widget = QWidget(self)

@@ -2,7 +2,7 @@
 import random
 
 from PyQt5.QtCore import Qt, QSize, QTimer, QTime
-from PyQt5.QtGui import QIcon, QCloseEvent, QPixmap, QFont
+from PyQt5.QtGui import QIcon, QCloseEvent, QPixmap, QFont, QColor
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QGroupBox,
                              QPushButton, QComboBox, QFrame, QToolBox,
                              QCheckBox, QLabel, QProgressBar, QButtonGroup,
@@ -348,33 +348,19 @@ class TestLauncherWindow(QWidget):
 
     def select_reglementation_themes(self, event):
         """ Select reglementation themes """
-        if event:
-            for themes in SEPARATED_THEME_DICT.items():
+        for themes in SEPARATED_THEME_DICT.items():
                 for theme in themes[1].items():
                     if theme:
                         if theme[0] in SEPARATED_THEME_DICT["Reglementation"]:
-                            self.themes_checkbox_dict[f"{theme[0]}"].setChecked(True)
-        else:
-            for themes in SEPARATED_THEME_DICT.items():
-                for theme in themes[1].items():
-                    if theme:
-                        if theme[0] in SEPARATED_THEME_DICT["Reglementation"]:
-                            self.themes_checkbox_dict[f"{theme[0]}"].setChecked(False)
+                            self.themes_checkbox_dict[f"{theme[0]}"].setChecked(event)
 
     def select_technique_themes(self, event):
         """ Select technique themes """
-        if event:
-            for themes in SEPARATED_THEME_DICT.items():
-                for theme in themes[1].items():
-                    if theme:
-                        if theme[0] in SEPARATED_THEME_DICT["Technique"]:
-                            self.themes_checkbox_dict[f"{theme[0]}"].setChecked(True)
-        else:
-            for themes in SEPARATED_THEME_DICT.items():
-                for theme in themes[1].items():
-                    if theme:
-                        if theme[0] in SEPARATED_THEME_DICT["Technique"]:
-                            self.themes_checkbox_dict[f"{theme[0]}"].setChecked(False)
+        for themes in SEPARATED_THEME_DICT.items():
+            for theme in themes[1].items():
+                if theme:
+                    if theme[0] in SEPARATED_THEME_DICT["Technique"]:
+                        self.themes_checkbox_dict[f"{theme[0]}"].setChecked(event)
 
     def set_theme_type(self):
         """ Select the theme type """
@@ -428,6 +414,7 @@ class TestWindow(QWidget):
         self.stopped_by_timer = False
         self.stopped_by_user = False
         self.recap_win = None
+        self.result_win = None
 
         # #################### Window config
         # self.setFixedSize(820, 670)
@@ -546,6 +533,7 @@ class TestWindow(QWidget):
         # noinspection PyUnresolvedReferences
         self.go_to_question.activated.connect(lambda: self.go_to(self.go_to_question.currentText()))
         self.recap_button.clicked.connect(self.display_recap)
+        self.terminate_button.clicked.connect(self.stop_test_by_user)
 
         # ################# Timer
         self.countdown = QTimer()
@@ -583,6 +571,11 @@ class TestWindow(QWidget):
     def stop_test_by_timer(self):
         """ Stopped by timer """
         self.stopped_by_timer = True
+        self.close()
+
+    def stop_test_by_user(self):
+        """ Stopped by timer """
+        self.stopped_by_user = True
         self.close()
 
     def go_to(self, index):
@@ -720,6 +713,14 @@ class TestWindow(QWidget):
         except Exception as e:
             print("init_test_questions", e)
 
+    def display_result_win(self):
+        """ Display the resul Window """
+        self.main_ui.result_win = ResultWindow(self.main_ui, self.candidat,
+                                               self.choosen_questions_list,
+                                               self.responses_dict,
+                                               self.number_of_questions)
+        self.main_ui.result_win.show()
+
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         if self.stopped_by_timer:
@@ -732,8 +733,25 @@ class TestWindow(QWidget):
             timeout_win.setIcon(QMessageBox.Icon.Information)
             timeout_win.setModal(True)
             timeout_win.exec_()
+            self.main_ui.show()
+            self.display_result_win()
+
         elif self.stopped_by_user:
-            pass
+            dialog = QMessageBox()
+            rep = dialog.question(self,
+                                  "Terminer le test",
+                                  f"{self.candidat}, voullez vous terminer le test et voir votre note;",
+                                  dialog.StandardButton.Yes | dialog.StandardButton.No)
+            if rep == dialog.StandardButton.Yes:
+                self.countdown.stop()
+                self.display_timer.stop()
+                self.main_ui.show()
+                self.display_result_win()
+            elif rep == dialog.StandardButton.No:
+                self.stopped_by_user = False
+                QCloseEvent.ignore(a0)
+                return
+
         else:
             dialog = QMessageBox()
             rep = dialog.question(self,
@@ -744,15 +762,14 @@ class TestWindow(QWidget):
             if rep == dialog.StandardButton.Yes:
                 self.countdown.stop()
                 self.display_timer.stop()
+                self.main_ui.enable_buttons()
+                self.main_ui.show()
             elif rep == dialog.StandardButton.No:
                 QCloseEvent.ignore(a0)
                 return
 
         if self.recap_win is not None:
             self.recap_win.close()
-
-        self.main_ui.enable_buttons()
-        self.main_ui.show()
 
 
 class RecapWindow(QWidget):
@@ -823,3 +840,110 @@ class RecapWindow(QWidget):
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         self.master.recap_win = None
+
+
+class ResultWindow(QWidget):
+    """ Result Window """
+
+    def __init__(self, master, candidat,
+                 questions_list, responses_dict,
+                 number_of_questions):
+        super().__init__()
+
+        self.master = master
+        self.candidat = candidat
+        self.questions_list = questions_list
+        self.responses_dict = responses_dict
+        self.number_of_questions = number_of_questions
+
+        # #################### Window config
+        self.setFixedSize(400, 500)
+        self.setWindowFlags(Qt.WindowCloseButtonHint)
+        self.setWindowTitle("Résultat de l'épreuve")
+        self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
+
+        # Main Layout
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        # Widgets
+        self.main_label = QLabel("17/20")
+        self.secondary_label = QLabel("Félicitation, vous avez réussis l'épreuve.")
+        self.result_table = QTableWidget()
+        self.view_details_btn = QPushButton("Voir les résultats en détail")
+
+        self.main_layout.addWidget(self.main_label, 0, Qt.AlignCenter)
+        self.main_layout.addWidget(self.secondary_label, 0, Qt.AlignCenter)
+        self.main_layout.addWidget(self.result_table)
+        self.main_layout.addWidget(self.view_details_btn)
+
+        main_label_font = self.main_label.font()
+        main_label_font.setPointSize(40)
+        self.main_label.setFont(main_label_font)
+
+        self.result_table.setFixedSize(QSize(380, 270))
+        self.result_table.setSortingEnabled(False)
+        self.result_table.setColumnCount(1)
+        self.result_table.setRowCount(int(self.number_of_questions))
+        self.result_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.index_header = QTableWidgetItem("Numéro question")
+        self.index_header.setFont(QFont("Lato", 12))
+        self.result_table.setHorizontalHeaderItem(0, self.index_header)
+        self.result_table.verticalHeader().setVisible(False)
+        self.result_table.setAlternatingRowColors(True)
+
+        self.make_result()
+        self.init_table()
+
+    def init_table(self):
+        """ Initialize the table """
+        try:
+            row = 0
+            for question in self.questions_list:
+                index_question = self.questions_list.index(question)
+                index = QTableWidgetItem("Question numéro: " + str(index_question + 1))
+                index.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                index.setTextAlignment(Qt.AlignCenter)
+                self.result_table.setItem(row, 0, index)
+                self.result_table.item(row, 0).setForeground(QColor(255, 255, 255))
+
+                if self.questions_list.index(question) in self.responses_dict.keys():
+                    if self.responses_dict[index_question]["response"] == question["reponse"]:
+                            self.result_table.item(row, 0).setBackground(QColor(0, 200, 0))
+                    else:
+                        self.result_table.item(row, 0).setBackground(QColor(200, 0, 0))
+                else:
+                    self.result_table.item(row, 0).setBackground(QColor(200, 0, 0))
+
+                row += 1
+        except Exception as e:
+            print(e)
+
+    def save_result(self):
+        pass
+
+    def make_result(self):
+        try:
+            points = 0
+            for question in self.questions_list:
+                index_question = self.questions_list.index(question)
+                if self.responses_dict[index_question]["response"] == question["reponse"]:
+                    points += 1
+            average_float = round((points * 20) // int(self.number_of_questions), 1)
+            average_int = (points * 20) // int(self.number_of_questions)
+            rest = (points * 20) % int(self.number_of_questions)
+
+            if rest == 0:
+                self.main_label.setText(f"{average_int}/20")
+            else:
+                self.main_label.setText(f"{average_float}/20")
+        except Exception as e:
+            print(e)
+
+    def closeEvent(self, a0: QCloseEvent):
+        """ Close Event """
+        self.master.result_win = None
+        self.master.enable_buttons()
+
+
+
