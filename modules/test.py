@@ -867,7 +867,7 @@ class ResultWindow(QWidget):
         self.setLayout(self.main_layout)
 
         # Widgets
-        self.main_label = QLabel("17/20")
+        self.main_label = QLabel()
         self.secondary_label = QLabel("Félicitation, vous avez réussis l'épreuve.")
         self.result_table = QTableWidget()
         self.view_details_btn = QPushButton("Voir les résultats en détail")
@@ -927,16 +927,13 @@ class ResultWindow(QWidget):
             points = 0
             for question in self.questions_list:
                 index_question = self.questions_list.index(question)
-                if self.responses_dict[index_question]["response"] == question["reponse"]:
-                    points += 1
-            average_float = round((points * 20) // int(self.number_of_questions), 1)
-            average_int = (points * 20) // int(self.number_of_questions)
-            rest = (points * 20) % int(self.number_of_questions)
+                if index_question in self.responses_dict.keys():
+                    if self.responses_dict[index_question]["response"] == question["reponse"]:
+                        points += 1
 
-            if rest == 0:
-                self.main_label.setText(f"{average_int}/20")
-            else:
-                self.main_label.setText(f"{average_float}/20")
+            average = (points * 20) / int(self.number_of_questions)
+
+            self.main_label.setText(f"{average}/20")
         except Exception as e:
             print(e)
 
