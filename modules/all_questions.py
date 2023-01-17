@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIcon, QCloseEvent, QFont, QPixmap
 from PyQt5.QtWidgets import (QHBoxLayout, QTableWidget, QWidget,
                              QTableWidgetItem, QHeaderView, QVBoxLayout,
                              QLabel, QGroupBox, QPushButton, QScrollBar,
-                             QGridLayout, QComboBox, QScrollArea)
+                             QGridLayout, QComboBox, QScrollArea, QFrame)
 
 from modules.contants import *
 
@@ -208,7 +208,7 @@ class QuestionWindow(QWidget):
         self.current_index = index
 
         # ### Window config
-        self.setFixedSize(QSize(800, 900))
+        self.setFixedSize(QSize(800, 800))
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle(f"Question numéro: {self.num}")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
@@ -226,7 +226,7 @@ class QuestionWindow(QWidget):
         self.img_layout.addWidget(self.img_label)
         # self.img_label.setFixedSize(770, 350)
         pix = QPixmap(f"./questions/{num}.png")
-        pixmap = pix.scaled(IMAGE_SIZE)
+        pixmap = pix.scaled(IMAGE_SIZE, Qt.KeepAspectRatio)
         self.img_label.setPixmap(pixmap)
         self.main_layout.addWidget(self.img_groupbox, 5, Qt.AlignCenter)
 
@@ -262,7 +262,8 @@ class QuestionWindow(QWidget):
         self.response_label_2.setWordWrap(True)
         self.family_label_2.setWordWrap(True)
         self.family_num_label_2.setWordWrap(True)
-        # self.family_label_2.setFixedWidth(150)
+        self.family_label_2.setAlignment(Qt.AlignCenter)
+        # self.family_label_2.setFixedSize(150, 0)
 
         self.detail_layout.addWidget(self.num_quest_label_1, 0, 0, Qt.AlignLeft)
         self.detail_layout.addWidget( self.response_label_1, 1, 0, Qt.AlignLeft)
@@ -271,22 +272,25 @@ class QuestionWindow(QWidget):
         self.detail_layout.addWidget(self.num_quest_label_2, 0, 1, Qt.AlignCenter)
         self.detail_layout.addWidget(self.response_label_2, 1, 1, Qt.AlignCenter)
         self.detail_layout.addWidget(self.family_num_label_2, 2, 1, Qt.AlignCenter)
-        self.detail_layout.addWidget(self.family_label_2, 3, 1, Qt.AlignJustify)
+        self.detail_layout.addWidget(self.family_label_2, 3, 1, Qt.AlignCenter)
 
         # Comment Layout
         self.comment_group = QGroupBox("Commentaire")
         self.comment_layout = QHBoxLayout()
+        self.comment_layout.setContentsMargins(1, 1, 1, 1)
 
         if self.commentaire is None:
             self.comment_label = QLabel(f"{self.cours}")
         else:
             self.comment_label = QLabel(f"{self.commentaire}\n{self.cours}")
         self.scroll = QScrollArea()
+        self.scroll.setFrameShape(QFrame.NoFrame)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
         self.scroll.setWidget(self.comment_label)
         self.comment_label.setObjectName("BlackLabel")
+        self.comment_label.setContentsMargins(10, 10, 10, 10)
         self.comment_label.setWordWrap(True)
         self.comment_label.setAlignment(Qt.AlignJustify)
         self.comment_group.setLayout(self.comment_layout)
@@ -353,7 +357,7 @@ class QuestionWindow(QWidget):
         commentaire = info_question["commentaire"]
         cours = info_question["cours"]
         pix = QPixmap(f"./questions/{num}.png")
-        pixmap = pix.scaled(IMAGE_SIZE)
+        pixmap = pix.scaled(IMAGE_SIZE, Qt.KeepAspectRatio)
 
         self.img_label.setPixmap(pixmap)
         self.choice_1.setText(f"1:\t" + propositions[0].replace('\n', ''))

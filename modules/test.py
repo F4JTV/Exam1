@@ -120,9 +120,10 @@ class TestLauncherWindow(QWidget):
 
         self.define_choice_label = QLabel("Les séries sont des questions prédéfinies pour la "
                                           "Règlementation ou la Technique, répartit équitablement "
-                                          "entre chaques thèmes.\n\nT = Technique\nR = Règlementation")
+                                          "entre chaques thèmes.\n\nR = Règlementation\nT = Technique")
         self.serie_detail_label = QLabel()
         self.serie_detail_label.setWordWrap(True)
+        self.serie_detail_label.setAlignment(Qt.AlignCenter)
         self.define_choice_label.setWordWrap(True)
         self.define_choice_layout.addWidget(self.define_choice_label)
         self.define_choice_layout.addWidget(self.serie_detail_label)
@@ -216,9 +217,22 @@ class TestLauncherWindow(QWidget):
 
     def display_serie_details(self):
         """ Display the details for this serie """
-        text = ""
+        text = "Série "
+        serie = self.define_choice_combo.currentText()
+        if serie.startswith("R"):
+            text += "Règlementation "
+        elif serie.startswith("T"):
+            text += "Technique "
+
+        text += serie[1] + serie[2] + "\n\n"
+
+        count = 0
         for question, num_question in self.series[self.define_choice_combo.currentText()].items():
-            text += f"{question}: {num_question}\t"
+            if count % 2 == 0:
+                text += f"{question}: {num_question}\t\t\t"
+            else:
+                text += f"{question}: {num_question}\n"
+            count += 1
         self.serie_detail_label.setText(text)
 
     def launch_test(self):
@@ -663,6 +677,7 @@ class TestWindow(QWidget):
             self.response_2_checkbox.setText(next_question["propositions"][1].replace('\n', ''))
             self.response_3_checkbox.setText(next_question["propositions"][2].replace('\n', ''))
             self.response_4_checkbox.setText(next_question["propositions"][3].replace('\n', ''))
+            self.go_to_question.setCurrentIndex(self.question_index)
             self.adjustSize()
             self.setFixedSize(self.width(), self.height())
         except Exception as e:
