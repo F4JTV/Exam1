@@ -1109,6 +1109,7 @@ class ResultDetailsWindow(QWidget):
         self.previous_btn.clicked.connect(self.display_previous_question)
 
         self.config_btns()
+        self.set_response_color()
 
     def display_next_question(self):
         """ Display the next question """
@@ -1128,10 +1129,10 @@ class ResultDetailsWindow(QWidget):
 
     def display_question(self):
         """ Get the info and display it """
-        if self.current_index >= len(self.master.questions["questions"]):
-            self.current_index = len(self.master.questions["questions"]) - 1
+        if self.current_index >= len(self.questions_list):
+            self.current_index = len(self.questions_list)
 
-        info_question = self.master.questions["questions"][self.current_index]
+        info_question = self.questions_list[self.current_index]
         num = info_question["num"]
         propositions = info_question["propositions"]
         reponse = info_question["reponse"]
@@ -1156,8 +1157,45 @@ class ResultDetailsWindow(QWidget):
         else:
             self.comment_label.setText(f"{commentaire}\n{cours}")
         self.setWindowTitle(f"Question numéro: {num}")
+        self.set_response_color()
 
-        self.master.questions_table.selectRow(self.current_index)
+    def set_response_color(self):
+        try:
+            reponse = self.questions_list[self.current_index]["reponse"]
+
+            if reponse == 0:
+                self.choice_1.setStyleSheet("color: white; background-color: green")
+            elif self.responses_dict[self.current_index]["response"] == 0 and \
+                    reponse != self.responses_dict[self.current_index]["response"]:
+                self.choice_1.setStyleSheet("color: white; background-color: red")
+            else:
+                self.choice_1.setStyleSheet("")
+
+            if reponse == 1:
+                self.choice_2.setStyleSheet("color: white; background-color: green")
+            elif self.responses_dict[self.current_index]["response"] == 1 and \
+                    reponse != self.responses_dict[self.current_index]["response"]:
+                self.choice_2.setStyleSheet("color: white; background-color: red")
+            else:
+                self.choice_2.setStyleSheet("")
+
+            if reponse == 2:
+                self.choice_3.setStyleSheet("color: white; background-color: green")
+            elif self.responses_dict[self.current_index]["response"] == 2 and \
+                    reponse != self.responses_dict[self.current_index]["response"]:
+                self.choice_3.setStyleSheet("color: white; background-color: red")
+            else:
+                self.choice_3.setStyleSheet("")
+
+            if reponse == 3:
+                self.choice_4.setStyleSheet("color: white; background-color: green")
+            elif self.responses_dict[self.current_index]["response"] == 3 and \
+                    reponse != self.responses_dict[self.current_index]["response"]:
+                self.choice_4.setStyleSheet("color: white; background-color: red")
+            else:
+                self.choice_4.setStyleSheet("")
+        except Exception as e:
+            print(e)
 
     def config_btns(self):
         """ Enable or disable buttons according to the current index """
