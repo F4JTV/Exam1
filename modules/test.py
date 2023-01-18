@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIcon, QCloseEvent, QPixmap, QFont, QColor
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QGroupBox,
                              QPushButton, QComboBox, QFrame, QToolBox,
                              QCheckBox, QLabel, QProgressBar, QButtonGroup,
-                             QTableWidget, QTableWidgetItem, QHeaderView)
+                             QTableWidget, QTableWidgetItem, QHeaderView, QScrollArea, QGridLayout)
 
 from modules.users_management import UsersListWindow
 from modules.contants import *
@@ -221,15 +221,17 @@ class TestLauncherWindow(QWidget):
         serie = self.define_choice_combo.currentText()
         if serie.startswith("R"):
             text += "Règlementation "
+            self.time_combo.setCurrentIndex(2)
         elif serie.startswith("T"):
             text += "Technique "
+            self.time_combo.setCurrentIndex(4)
 
         text += serie[1] + serie[2] + "\n\n"
 
         count = 0
         for question, num_question in self.series[self.define_choice_combo.currentText()].items():
             if count % 2 == 0:
-                text += f"{question}: {num_question}\t\t\t"
+                text += f"{question}: {num_question}" + " " * 4
             else:
                 text += f"{question}: {num_question}\n"
             count += 1
@@ -393,8 +395,9 @@ class TestWindow(QWidget):
     theme_type: 0 free / 1 serie
     """
 
-    def __init__(self, master, candidat, themes, timer_state,
-                 timer, number_of_questions, questions, series, theme_type):
+    def __init__(self, master, candidat, themes,
+                 timer_state, timer, number_of_questions,
+                 questions, series, theme_type):
         super().__init__()
         self.main_ui = master.master
         self.master = master
@@ -740,7 +743,7 @@ class TestWindow(QWidget):
             dialog = QMessageBox()
             rep = dialog.question(self,
                                   "Terminer le test",
-                                  f"{self.candidat}, voullez vous terminer le test et voir votre note;",
+                                  f"{self.candidat}, voullez vous terminer l'épreuve et voir le résultat ?",
                                   dialog.StandardButton.Yes | dialog.StandardButton.No)
             if rep == dialog.StandardButton.Yes:
                 self.countdown.stop()
@@ -757,7 +760,7 @@ class TestWindow(QWidget):
             rep = dialog.question(self,
                                   "Arrèter le test",
                                   "Voullez vous arrêter le test,\n"
-                                  "les résultats ne seront pas sauvegarder",
+                                  "les résultats ne seront pas sauvegardé",
                                   dialog.StandardButton.Yes | dialog.StandardButton.No)
             if rep == dialog.StandardButton.Yes:
                 self.countdown.stop()
@@ -775,7 +778,8 @@ class TestWindow(QWidget):
 class RecapWindow(QWidget):
     """ Recap Window """
 
-    def __init__(self, master, number_of_questions, responses_dict, questions_list):
+    def __init__(self, master, number_of_questions,
+                 responses_dict, questions_list):
         super().__init__()
         self.master = master
         self.number_of_questions = number_of_questions
@@ -850,11 +854,13 @@ class ResultWindow(QWidget):
                  number_of_questions):
         super().__init__()
 
-        self.master = master
+        self.main_ui = master
         self.candidat = candidat
         self.questions_list = questions_list
         self.responses_dict = responses_dict
         self.number_of_questions = number_of_questions
+
+        self.details_win = None
 
         # #################### Window config
         self.setFixedSize(400, 500)
@@ -892,8 +898,28 @@ class ResultWindow(QWidget):
         self.result_table.verticalHeader().setVisible(False)
         self.result_table.setAlternatingRowColors(True)
 
+        self.view_details_btn.clicked.connect(self.display_details)
+
         self.make_result()
         self.init_table()
+
+    def display_details(self):
+        try:
+            if self.details_win is not None:
+                self.details_win.close()
+
+            question = self.questions_list[0]
+            num = question["num"]
+            propositions = question["propositions"]
+            reponse = question["reponse"]
+            theme_num = question["themeNum"]
+            commentaire = question["commentaire"]
+            cours = question["cours"]
+            self.details_win = ResultDetailsWindow(self, question, num, propositions, reponse,
+                                                   theme_num, commentaire, cours, 0)
+            self.details_win.show()
+        except Exception as e:
+            print(e)
 
     def init_table(self):
         """ Initialize the table """
@@ -902,7 +928,7 @@ class ResultWindow(QWidget):
             for question in self.questions_list:
                 index_question = self.questions_list.index(question)
                 index = QTableWidgetItem("Question numéro: " + str(index_question + 1))
-                index.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                index.setFlags(Qt.ItemIsEnabled)
                 index.setTextAlignment(Qt.AlignCenter)
                 self.result_table.setItem(row, 0, index)
                 self.result_table.item(row, 0).setForeground(QColor(255, 255, 255))
@@ -914,15 +940,17 @@ class ResultWindow(QWidget):
                         self.result_table.item(row, 0).setBackground(QColor(200, 0, 0))
                 else:
                     self.result_table.item(row, 0).setBackground(QColor(200, 0, 0))
-
                 row += 1
+
         except Exception as e:
             print(e)
 
     def save_result(self):
+        """ Save result  """
         pass
 
     def make_result(self):
+        """ Calculate the average and display it """
         try:
             points = 0
             for question in self.questions_list:
@@ -931,16 +959,219 @@ class ResultWindow(QWidget):
                     if self.responses_dict[index_question]["response"] == question["reponse"]:
                         points += 1
 
-            average = (points * 20) / int(self.number_of_questions)
+            average_int = (points * 20) // int(self.number_of_questions)
+            average_float = (points * 20) / int(self.number_of_questions)
+            rest = (points * 20) % int(self.number_of_questions)
 
-            self.main_label.setText(f"{average}/20")
+            if rest == 0:
+                self.main_label.setText(f"{average_int}/20")
+            else:
+                self.main_label.setText(f"{(round(average_float, 1))}/20")
+
+            if average_float < 10:
+                self.secondary_label.setText("Désolé, vous avez échoué à l'épreuve.")
+            else:
+                self.secondary_label.setText("Félicitation, vous avez réussis l'épreuve.")
+
         except Exception as e:
             print(e)
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
-        self.master.result_win = None
-        self.master.enable_buttons()
+        self.main_ui.result_win = None
+        self.main_ui.enable_buttons()
 
 
+class ResultDetailsWindow(QWidget):
+    """ Question Window """
 
+    def __init__(self, master, question, num, propositions,
+                 reponse, theme_num, commentaire, cours, index):
+        super().__init__()
+        self.master = master
+        self.num = num
+        self.question = question
+        self.propositions = propositions
+        self.reponse = reponse
+        self.theme_num = theme_num
+        self.commentaire = commentaire
+        self.cours = cours
+        self.current_index = index
+
+        self.questions_list = self.master.questions_list
+        self.responses_dict = self.master.responses_dict
+
+        # ### Window config
+        self.setFixedSize(QSize(820, 800))
+        self.setWindowFlags(Qt.WindowCloseButtonHint)
+        self.setWindowTitle(f"Question numéro: {self.num}")
+        self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
+        self.setUpdatesEnabled(True)
+
+        # Main Layout
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        # Image Label
+        self.img_groupbox = QGroupBox()
+        self.img_label = QLabel()
+        self.img_layout = QVBoxLayout()
+        self.img_groupbox.setLayout(self.img_layout)
+        self.img_layout.addWidget(self.img_label)
+        # self.img_label.setFixedSize(770, 350)
+        pix = QPixmap(f"./questions/{num}.png")
+        pixmap = pix.scaled(IMAGE_SIZE, Qt.KeepAspectRatio)
+        self.img_label.setPixmap(pixmap)
+        self.main_layout.addWidget(self.img_groupbox, 5, Qt.AlignCenter)
+
+        # Detail Comment Layout
+        self.detail_comment_layout = QHBoxLayout()
+        self.main_layout.addLayout(self.detail_comment_layout, 3)
+
+        # Details layout
+        self.detail_group = QGroupBox("Détails")
+        self.detail_layout = QGridLayout()
+        self.detail_group.setLayout(self.detail_layout)
+        self.detail_comment_layout.addWidget(self.detail_group, 1)
+
+        self.num_quest_label_1 = QLabel("N° Question:")
+        self.response_label_1 = QLabel(f"Réponse:")
+        self.family_num_label_1 = QLabel(f"Num Famille:")
+        self.family_label_1 = QLabel(f"Famille:")
+        self.num_quest_label_2 = QLabel(f"{self.num}")
+        self.response_label_2 = QLabel(f"{str(int(self.reponse) + 1)}")
+        self.family_num_label_2 = QLabel(f"{self.theme_num}")
+        self.family_label_2 = QLabel(THEMES_DICT[self.theme_num])
+
+        self.num_quest_label_2.setWordWrap(True)
+        self.response_label_2.setWordWrap(True)
+        self.family_label_2.setWordWrap(True)
+        self.family_num_label_2.setWordWrap(True)
+        self.family_label_2.setAlignment(Qt.AlignCenter)
+        # self.family_label_2.setFixedSize(150, 0)
+
+        self.detail_layout.addWidget(self.num_quest_label_1, 0, 0, Qt.AlignLeft)
+        self.detail_layout.addWidget( self.response_label_1, 1, 0, Qt.AlignLeft)
+        self.detail_layout.addWidget( self.family_label_1, 3, 0, Qt.AlignLeft)
+        self.detail_layout.addWidget(self.family_num_label_1, 2, 0, Qt.AlignLeft)
+        self.detail_layout.addWidget(self.num_quest_label_2, 0, 1, Qt.AlignCenter)
+        self.detail_layout.addWidget(self.response_label_2, 1, 1, Qt.AlignCenter)
+        self.detail_layout.addWidget(self.family_num_label_2, 2, 1, Qt.AlignCenter)
+        self.detail_layout.addWidget(self.family_label_2, 3, 1, Qt.AlignCenter)
+
+        # Comment Layout
+        self.comment_group = QGroupBox("Commentaire")
+        self.comment_layout = QHBoxLayout()
+        self.comment_layout.setContentsMargins(1, 1, 1, 1)
+
+        if self.commentaire is None:
+            self.comment_label = QLabel(f"{self.cours}")
+        else:
+            self.comment_label = QLabel(f"{self.commentaire}\n{self.cours}")
+        self.scroll = QScrollArea()
+        self.scroll.setFrameShape(QFrame.NoFrame)
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.comment_label)
+        self.comment_label.setObjectName("BlackLabel")
+        self.comment_label.setContentsMargins(10, 10, 10, 10)
+        self.comment_label.setWordWrap(True)
+        self.comment_label.setAlignment(Qt.AlignJustify)
+        self.comment_group.setLayout(self.comment_layout)
+        self.comment_layout.addWidget(self.scroll, 1)
+        self.detail_comment_layout.addWidget(self.comment_group, 2)
+
+        # Response Layout
+        self.responses_group = QGroupBox("Réponses")
+        self.responses_layout = QVBoxLayout()
+        self.responses_group.setLayout(self.responses_layout)
+        self.main_layout.addWidget(self.responses_group, 1)
+
+        self.choice_1 = QLabel(f"1: " + self.propositions[0].replace('\n', ''))
+        self.choice_2 = QLabel(f"2: " + self.propositions[1].replace('\n', ''))
+        self.choice_3 = QLabel(f"3: " + self.propositions[2].replace('\n', ''))
+        self.choice_4 = QLabel(f"4: " + self.propositions[3].replace('\n', ''))
+
+        self.responses_layout.addWidget(self.choice_1, 1, Qt.AlignLeft)
+        self.responses_layout.addWidget(self.choice_2, 1, Qt.AlignLeft)
+        self.responses_layout.addWidget(self.choice_3, 1, Qt.AlignLeft)
+        self.responses_layout.addWidget(self.choice_4, 1, Qt.AlignLeft)
+
+        # Buttons Layout
+        self.buttons_layout = QHBoxLayout()
+        self.main_layout.addLayout(self.buttons_layout)
+        self.previous_btn = QPushButton("Précédente question")
+        self.next_btn = QPushButton("Prochaine question")
+        self.buttons_layout.addWidget(self.previous_btn, 1)
+        self.buttons_layout.addWidget(self.next_btn, 1)
+        self.next_btn.clicked.connect(self.display_next_question)
+        self.previous_btn.clicked.connect(self.display_previous_question)
+
+        self.config_btns()
+
+    def display_next_question(self):
+        """ Display the next question """
+        self.current_index += 1
+        self.display_question()
+        self.config_btns()
+        self.adjustSize()
+        # self.setFixedSize(self.width(), self.height())
+
+    def display_previous_question(self):
+        """ Display the previous question """
+        self.current_index -= 1
+        self.display_question()
+        self.config_btns()
+        self.adjustSize()
+        # self.setFixedSize(self.width(), self.height())
+
+    def display_question(self):
+        """ Get the info and display it """
+        if self.current_index >= len(self.master.questions["questions"]):
+            self.current_index = len(self.master.questions["questions"]) - 1
+
+        info_question = self.master.questions["questions"][self.current_index]
+        num = info_question["num"]
+        propositions = info_question["propositions"]
+        reponse = info_question["reponse"]
+        theme_num = info_question["themeNum"]
+        commentaire = info_question["commentaire"]
+        cours = info_question["cours"]
+        pix = QPixmap(f"./questions/{num}.png")
+        pixmap = pix.scaled(IMAGE_SIZE, Qt.KeepAspectRatio)
+
+        self.img_label.setPixmap(pixmap)
+        self.choice_1.setText(f"1: " + propositions[0].replace('\n', ''))
+        self.choice_2.setText(f"2: " + propositions[1].replace('\n', ''))
+        self.choice_3.setText(f"3: " + propositions[2].replace('\n', ''))
+        self.choice_4.setText(f"4: " + propositions[3].replace('\n', ''))
+
+        self.num_quest_label_2.setText(f"{num}")
+        self.response_label_2.setText(f"{str(int(reponse) + 1)}")
+        self.family_num_label_2.setText(f"{theme_num}")
+        self.family_label_2.setText(f"{THEMES_DICT[theme_num]}")
+        if commentaire is None:
+            self.comment_label.setText(f"{cours}")
+        else:
+            self.comment_label.setText(f"{commentaire}\n{cours}")
+        self.setWindowTitle(f"Question numéro: {num}")
+
+        self.master.questions_table.selectRow(self.current_index)
+
+    def config_btns(self):
+        """ Enable or disable buttons according to the current index """
+        if self.current_index == len(self.questions_list) - 1:
+            self.next_btn.setDisabled(True)
+        else:
+            self.next_btn.setDisabled(False)
+
+        if self.current_index == 0:
+            self.previous_btn.setDisabled(True)
+        else:
+            self.previous_btn.setDisabled(False)
+
+    def closeEvent(self, a0: QCloseEvent):
+        """ Close Event """
+        #self.master.show()
+        self.master.question_win = None

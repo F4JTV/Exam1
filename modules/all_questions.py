@@ -208,7 +208,7 @@ class QuestionWindow(QWidget):
         self.current_index = index
 
         # ### Window config
-        self.setFixedSize(QSize(800, 800))
+        self.setFixedSize(QSize(820, 800))
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle(f"Question numéro: {self.num}")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
@@ -248,15 +248,6 @@ class QuestionWindow(QWidget):
         self.response_label_2 = QLabel(f"{str(int(self.reponse) + 1)}")
         self.family_num_label_2 = QLabel(f"{self.theme_num}")
         self.family_label_2 = QLabel(THEMES_DICT[self.theme_num])
-
-        self.num_quest_label_1.setObjectName("BlackLabel")
-        self.response_label_1.setObjectName("BlackLabel")
-        self.family_label_1.setObjectName("BlackLabel")
-        self.family_num_label_1.setObjectName("BlackLabel")
-        self.num_quest_label_2.setObjectName("BlackLabel")
-        self.response_label_2.setObjectName("BlackLabel")
-        self.family_label_2.setObjectName("BlackLabel")
-        self.family_num_label_2.setObjectName("BlackLabel")
 
         self.num_quest_label_2.setWordWrap(True)
         self.response_label_2.setWordWrap(True)
@@ -303,14 +294,11 @@ class QuestionWindow(QWidget):
         self.responses_group.setLayout(self.responses_layout)
         self.main_layout.addWidget(self.responses_group, 1)
 
-        self.choice_1 = QLabel(f"1:\t" + self.propositions[0].replace('\n', ''))
-        self.choice_2 = QLabel(f"2:\t" + self.propositions[1].replace('\n', ''))
-        self.choice_3 = QLabel(f"3:\t" + self.propositions[2].replace('\n', ''))
-        self.choice_4 = QLabel(f"4:\t" + self.propositions[3].replace('\n', ''))
-        self.choice_1.setObjectName("BlackLabel")
-        self.choice_2.setObjectName("BlackLabel")
-        self.choice_3.setObjectName("BlackLabel")
-        self.choice_4.setObjectName("BlackLabel")
+        self.choice_1 = QLabel(f"1: " + self.propositions[0].replace('\n', ''))
+        self.choice_2 = QLabel(f"2: " + self.propositions[1].replace('\n', ''))
+        self.choice_3 = QLabel(f"3: " + self.propositions[2].replace('\n', ''))
+        self.choice_4 = QLabel(f"4: " + self.propositions[3].replace('\n', ''))
+
         self.responses_layout.addWidget(self.choice_1, 1, Qt.AlignLeft)
         self.responses_layout.addWidget(self.choice_2, 1, Qt.AlignLeft)
         self.responses_layout.addWidget(self.choice_3, 1, Qt.AlignLeft)
@@ -360,10 +348,10 @@ class QuestionWindow(QWidget):
         pixmap = pix.scaled(IMAGE_SIZE, Qt.KeepAspectRatio)
 
         self.img_label.setPixmap(pixmap)
-        self.choice_1.setText(f"1:\t" + propositions[0].replace('\n', ''))
-        self.choice_2.setText(f"2:\t" + propositions[1].replace('\n', ''))
-        self.choice_3.setText(f"3:\t" + propositions[2].replace('\n', ''))
-        self.choice_4.setText(f"4:\t" + propositions[3].replace('\n', ''))
+        self.choice_1.setText(f"1: " + propositions[0].replace('\n', ''))
+        self.choice_2.setText(f"2: " + propositions[1].replace('\n', ''))
+        self.choice_3.setText(f"3: " + propositions[2].replace('\n', ''))
+        self.choice_4.setText(f"4: " + propositions[3].replace('\n', ''))
 
         self.num_quest_label_2.setText(f"{num}")
         self.response_label_2.setText(f"{str(int(reponse) + 1)}")
