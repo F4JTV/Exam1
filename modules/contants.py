@@ -1,6 +1,8 @@
+""" Constants """
 import json
 
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QMessageBox, QLabel
 
 THEMES_DICT = {
     305: "Questions entrainement",
@@ -80,3 +82,14 @@ def display_error(master, error):
     error_win.setIcon(QMessageBox.Critical)
     error_win.setModal(True)
     error_win.exec_()
+
+
+class QLabelClickable(QLabel):
+    """Clickable QLabel"""
+    # noinspection PyArgumentList
+    clicked = pyqtSignal()
+
+    def mousePressEvent(self, event):
+        """Emit a clicked signal if there is Mouse Press Event"""
+        # noinspection PyUnresolvedReferences
+        self.clicked.emit()

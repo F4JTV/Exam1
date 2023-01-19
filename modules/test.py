@@ -1,11 +1,12 @@
 """ Test Windows """
 import random
+import webbrowser
 
 from PyQt5.QtCore import Qt, QSize, QTimer, QTime
 from PyQt5.QtGui import QIcon, QCloseEvent, QPixmap, QFont, QColor
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QGroupBox,
                              QPushButton, QComboBox, QFrame, QToolBox,
-                             QCheckBox, QLabel, QProgressBar, QButtonGroup,
+                             QCheckBox, QProgressBar, QButtonGroup,
                              QTableWidget, QTableWidgetItem, QHeaderView,
                              QScrollArea, QGridLayout)
 
@@ -1028,7 +1029,7 @@ class ResultDetailsWindow(QWidget):
         self.img_groupbox.setLayout(self.img_layout)
         self.img_layout.addWidget(self.img_label)
         # self.img_label.setFixedSize(770, 350)
-        pix = QPixmap(f"./questions/{num}.png")
+        pix = QPixmap(f"./questions/{self.num}.png")
         pixmap = pix.scaled(IMAGE_SIZE, Qt.KeepAspectRatio)
         self.img_label.setPixmap(pixmap)
         self.main_layout.addWidget(self.img_groupbox, 5, Qt.AlignCenter)
@@ -1074,16 +1075,16 @@ class ResultDetailsWindow(QWidget):
         self.comment_layout.setContentsMargins(1, 1, 1, 1)
 
         if self.commentaire is None:
-            self.comment_label = QLabel(f"{self.cours}")
+            self.comment_label = QLabelClickable(f"{self.cours}")
         else:
-            self.comment_label = QLabel(f"{self.commentaire}\n{self.cours}")
+            self.comment_label = QLabelClickable(f"{self.commentaire}\n{self.cours}")
         self.scroll = QScrollArea()
         self.scroll.setFrameShape(QFrame.NoFrame)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
         self.scroll.setWidget(self.comment_label)
-        self.comment_label.setObjectName("BlackLabel")
+        self.comment_label.clicked.connect(lambda: webbrowser.open(self.cours))
         self.comment_label.setContentsMargins(10, 10, 10, 10)
         self.comment_label.setWordWrap(True)
         self.comment_label.setAlignment(Qt.AlignJustify)
@@ -1110,21 +1111,40 @@ class ResultDetailsWindow(QWidget):
         # Buttons Layout
         self.buttons_layout = QHBoxLayout()
         self.main_layout.addLayout(self.buttons_layout)
+
         self.previous_btn = QPushButton("Précédente question")
         self.next_btn = QPushButton("Prochaine question")
-        self.buttons_layout.addWidget(self.previous_btn, 1)
-        self.buttons_layout.addWidget(self.next_btn, 1)
+        self.index_combo = QComboBox()
+
+        self.buttons_layout.addWidget(self.previous_btn, 4)
+        self.buttons_layout.addWidget(self.next_btn, 4)
+        self.buttons_layout.addWidget(self.index_combo, 1)
+
         self.next_btn.clicked.connect(self.display_next_question)
         self.previous_btn.clicked.connect(self.display_previous_question)
+        self.index_combo.setEditable(True)
+        self.index_combo.lineEdit().setReadOnly(True)
+        self.index_combo.lineEdit().setAlignment(Qt.AlignCenter)
+        self.index_combo.addItems([str(i) for i in range(1, len(self.questions_list) + 1)])
+        for i in range(0, self.index_combo.count()):
+            self.index_combo.setItemData(i, Qt.AlignCenter, Qt.TextAlignmentRole)
+        # noinspection PyUnresolvedReferences
+        self.index_combo.activated.connect(self.go_to)
 
         self.config_btns()
         self.set_response_color()
+
+    def go_to(self):
+        """ Go to the selected question number """
+        self.current_index = int(self.index_combo.currentText()) - 1
+        self.display_question()
+        self.adjustSize()
 
     def display_next_question(self):
         """ Display the next question """
         self.current_index += 1
         self.display_question()
-        self.config_btns()
+        self.index_combo.setCurrentIndex(self.current_index)
         self.adjustSize()
         # self.setFixedSize(self.width(), self.height())
 
@@ -1132,7 +1152,7 @@ class ResultDetailsWindow(QWidget):
         """ Display the previous question """
         self.current_index -= 1
         self.display_question()
-        self.config_btns()
+        self.index_combo.setCurrentIndex(self.current_index)
         self.adjustSize()
         # self.setFixedSize(self.width(), self.height())
 
@@ -1165,8 +1185,12 @@ class ResultDetailsWindow(QWidget):
             self.comment_label.setText(f"{cours}")
         else:
             self.comment_label.setText(f"{commentaire}\n{cours}")
+
+        self.comment_label.clicked.disconnect()
+        self.comment_label.clicked.connect(lambda: webbrowser.open(cours))
         self.setWindowTitle(f"Question numéro: {self.current_index + 1}")
         self.set_response_color()
+        self.config_btns()
 
     def set_response_color(self):
         """ Set the color of the good and bad responses """

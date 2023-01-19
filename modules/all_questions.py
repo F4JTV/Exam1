@@ -1,11 +1,11 @@
 """ All Questions Window """
-import json
+import webbrowser
 
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QCloseEvent, QFont, QPixmap
 from PyQt5.QtWidgets import (QHBoxLayout, QTableWidget, QWidget,
                              QTableWidgetItem, QHeaderView, QVBoxLayout,
-                             QLabel, QGroupBox, QPushButton, QScrollBar,
+                             QGroupBox, QPushButton, QScrollBar,
                              QGridLayout, QComboBox, QScrollArea, QFrame)
 
 from modules.contants import *
@@ -271,9 +271,10 @@ class QuestionWindow(QWidget):
         self.comment_layout.setContentsMargins(1, 1, 1, 1)
 
         if self.commentaire is None:
-            self.comment_label = QLabel(f"{self.cours}")
+            self.comment_label = QLabelClickable(f"{self.cours}")
         else:
-            self.comment_label = QLabel(f"{self.commentaire}\n{self.cours}")
+            self.comment_label = QLabelClickable(f"{self.commentaire}\n{self.cours}")
+        self.comment_label.clicked.connect(lambda: webbrowser.open(self.cours))
         self.scroll = QScrollArea()
         self.scroll.setFrameShape(QFrame.NoFrame)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
@@ -361,6 +362,9 @@ class QuestionWindow(QWidget):
             self.comment_label.setText(f"{cours}")
         else:
             self.comment_label.setText(f"{commentaire}\n{cours}")
+
+        self.comment_label.clicked.disconnect()
+        self.comment_label.clicked.connect(lambda: webbrowser.open(cours))
         self.setWindowTitle(f"Question numéro: {num}")
 
         self.master.questions_table.selectRow(self.current_index)

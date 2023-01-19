@@ -4,10 +4,10 @@ import sys
 import webbrowser
 from datetime import datetime
 
-from PyQt5.QtCore import QTimer, pyqtSignal, Qt, QSize
+from PyQt5.QtCore import QTimer, Qt, QSize
 from PyQt5.QtGui import QIcon, QFont, QCloseEvent
-from PyQt5.QtWidgets import (QMainWindow, QMenuBar, QMenu, QAction,
-                             QHBoxLayout, QLabel, QMessageBox, QWidget,
+from PyQt5.QtWidgets import (QMainWindow, QMenuBar, QMenu,
+                             QAction, QHBoxLayout, QWidget,
                              QVBoxLayout, QToolButton)
 
 from modules.users_management import UsersManagementWindow
@@ -16,9 +16,10 @@ from modules.asked_questions import AskedQuestionsWindow
 from modules.all_questions import AllQuestionsWindow
 from modules.contribute import ContributeWindow
 from modules.test import TestLauncherWindow
+from modules.contants import *
 
 VERSION = datetime.now().strftime("v%m%d%y")
-APP_NAME = "Exam'1"
+APP_NAME = "Exam'2"
 TITLE = f"{APP_NAME} - {VERSION}"
 WIDTH = 840
 HEIGHT = 400
@@ -38,7 +39,6 @@ class MainWindow(QMainWindow):
         self.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
         self.setWindowTitle(TITLE)
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
-        self.setObjectName("Main")
 
         # ### Variables
         self.opacity = 0
@@ -149,7 +149,7 @@ class MainWindow(QMainWindow):
         # ### Title Layout
         self.main_label = QLabelClickable()
         # self.main_label.setPixmap(QPixmap("./images/exam1.png"))
-        self.main_label.setText("Exam'1")
+        self.main_label.setText(APP_NAME)
         self.main_label.setFont(QFont("Radio Space", 72))
         self.title_label = QLabel("Règlementation et Technique")
         self.subtitle_label = QLabel("Logiciel de simulation de l'examen Radioamateur Français")
@@ -284,7 +284,7 @@ class MainWindow(QMainWindow):
         dialog = QMessageBox()
         rep = dialog.question(self,
                               "Quitter",
-                              "Voullez vous quittez Exam'1 ?",
+                              f"Voullez vous quittez {APP_NAME} ?",
                               dialog.StandardButton.Yes | dialog.StandardButton.No)
         if rep == dialog.StandardButton.Yes:
             QCloseEvent.ignore(event)
@@ -295,13 +295,3 @@ class MainWindow(QMainWindow):
             QCloseEvent.ignore(event)
             return
 
-
-class QLabelClickable(QLabel):
-    """Clickable QLabel"""
-    # noinspection PyArgumentList
-    clicked = pyqtSignal()
-
-    def mousePressEvent(self, event):
-        """Emit a clicked signal if there is Mouse Press Event"""
-        # noinspection PyUnresolvedReferences
-        self.clicked.emit()

@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QCloseEvent, QFont
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton,
                              QHBoxLayout, QTableWidget, QHeaderView,
-                             QTableWidgetItem)
+                             QTableWidgetItem, QGroupBox)
 
 
 class ContributeWindow(QWidget):
@@ -17,7 +17,7 @@ class ContributeWindow(QWidget):
         self.master = master
 
         self.contributors_win = None
-        self.detail_txt = "Nous sommes persuadés que le logiciel Exam'1 et les cours " \
+        self.detail_txt = "Nous sommes persuadés que le logiciel Exam'2 et les cours " \
                           "vidéo/PDF de Jean-Luc F6GPX vous ont aidés à devenir Radioamateur.\n\n" \
                           "Nous vous demandons simplement de nous envoyer un compte-rendu " \
                           "détaillé lors de votre passage de votre examen ainsi que le numéro d'examen.\n" \
@@ -29,9 +29,9 @@ class ContributeWindow(QWidget):
                           "Rejoignez la liste des participants en envoyant un mail au RadioClub F6KGL.\n\n"
 
         # ### Window config
-        self.setFixedSize(700, 450)
+        self.setFixedSize(700, 400)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
-        self.setWindowTitle("Contribuez à l'amélioration d'Exam1")
+        self.setWindowTitle("Contribuez à l'amélioration d'Exam'2")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
 
         # Main Layout
@@ -39,13 +39,19 @@ class ContributeWindow(QWidget):
         self.setLayout(self.main_layout)
 
         self.main_label = QLabel("Aidez-nous à améliorer la base de données")
-        self.main_label.setFont(QFont("Lato", 20))
+        self.main_label.setFont(QFont("Lato", 22))
+
+        self.detail_grp = QGroupBox()
+        self.detail_layout = QVBoxLayout()
+        self.detail_grp.setLayout(self.detail_layout)
+
         self.detail_label = QLabel(self.detail_txt)
+        self.detail_layout.addWidget(self.detail_label)
         self.detail_label.setWordWrap(True)
         self.detail_label.setAlignment(Qt.AlignJustify)
 
         self.main_layout.addWidget(self.main_label, 1, Qt.AlignCenter)
-        self.main_layout.addWidget(self.detail_label, 3, Qt.AlignCenter)
+        self.main_layout.addWidget(self.detail_grp, 3, Qt.AlignCenter)
 
         self.contributors_list_btn = QPushButton("Liste des contributeurs")
         self.send_message_btn = QPushButton("Contactez le Radio-Club F6KGL")

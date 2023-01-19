@@ -1,13 +1,11 @@
 """ Users management and progression Windows """
-import json
-
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QCloseEvent, QFont
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QToolButton, QHBoxLayout,
                              QPushButton, QTableWidget, QTableWidgetItem,
-                             QHeaderView, QDialog, QFormLayout, QLineEdit, QMessageBox)
+                             QHeaderView, QDialog, QFormLayout, QLineEdit)
 
-from modules.contants import display_error
+from modules.contants import *
 
 class UsersManagementWindow(QWidget):
     """ Users Management Window """
