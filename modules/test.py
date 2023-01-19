@@ -6,7 +6,8 @@ from PyQt5.QtGui import QIcon, QCloseEvent, QPixmap, QFont, QColor
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QGroupBox,
                              QPushButton, QComboBox, QFrame, QToolBox,
                              QCheckBox, QLabel, QProgressBar, QButtonGroup,
-                             QTableWidget, QTableWidgetItem, QHeaderView, QScrollArea, QGridLayout)
+                             QTableWidget, QTableWidgetItem, QHeaderView,
+                             QScrollArea, QGridLayout)
 
 from modules.users_management import UsersListWindow
 from modules.contants import *
@@ -556,6 +557,7 @@ class TestWindow(QWidget):
 
         self.init_test_questions()
         self.display_first_question()
+        self.config_buttons()
 
     def display_recap(self):
         """ Display the recap Window """
@@ -636,7 +638,10 @@ class TestWindow(QWidget):
 
     def config_buttons(self):
         """ Enable/Disable Next/Previous Buttons """
-        if self.question_index + 1 == int(self.number_of_questions):
+        if self.number_of_questions == 1:
+            self.next_button.setDisabled(True)
+            self.previous_button.setDisabled(True)
+        elif self.question_index + 1 == int(self.number_of_questions):
             self.next_button.setDisabled(True)
             self.previous_button.setEnabled(True)
         elif self.question_index == 0:
@@ -904,6 +909,7 @@ class ResultWindow(QWidget):
         self.init_table()
 
     def display_details(self):
+        """ Display the detail result Window """
         try:
             if self.details_win is not None:
                 self.details_win.close()
@@ -918,6 +924,7 @@ class ResultWindow(QWidget):
             self.details_win = ResultDetailsWindow(self, question, num, propositions, reponse,
                                                    theme_num, commentaire, cours, 0)
             self.details_win.show()
+            self.view_details_btn.setDisabled(True)
         except Exception as e:
             print(e)
 
@@ -978,6 +985,8 @@ class ResultWindow(QWidget):
 
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
+        if self.details_win is not None:
+            self.details_win.close()
         self.main_ui.result_win = None
         self.main_ui.enable_buttons()
 
@@ -1004,7 +1013,7 @@ class ResultDetailsWindow(QWidget):
         # ### Window config
         self.setFixedSize(QSize(820, 800))
         self.setWindowFlags(Qt.WindowCloseButtonHint)
-        self.setWindowTitle(f"Question numéro: {self.num}")
+        self.setWindowTitle(f"Question numéro: {self.current_index + 1}")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
         self.setUpdatesEnabled(True)
 
@@ -1156,46 +1165,59 @@ class ResultDetailsWindow(QWidget):
             self.comment_label.setText(f"{cours}")
         else:
             self.comment_label.setText(f"{commentaire}\n{cours}")
-        self.setWindowTitle(f"Question numéro: {num}")
+        self.setWindowTitle(f"Question numéro: {self.current_index + 1}")
         self.set_response_color()
 
     def set_response_color(self):
+        """ Set the color of the good and bad responses """
+        reponse = self.questions_list[self.current_index]["reponse"]
         try:
-            reponse = self.questions_list[self.current_index]["reponse"]
-
             if reponse == 0:
                 self.choice_1.setStyleSheet("color: white; background-color: green")
-            elif self.responses_dict[self.current_index]["response"] == 0 and \
-                    reponse != self.responses_dict[self.current_index]["response"]:
+            elif self.responses_dict[self.current_index]["response"] == 0 and reponse != 0:
                 self.choice_1.setStyleSheet("color: white; background-color: red")
             else:
                 self.choice_1.setStyleSheet("")
+        except KeyError:
+            self.choice_1.setStyleSheet("")
+            self.setWindowTitle(f"Question numéro: {self.current_index + 1} - "
+                                f"Vous n'avez pas répondu à cette question")
 
+        try:
             if reponse == 1:
                 self.choice_2.setStyleSheet("color: white; background-color: green")
-            elif self.responses_dict[self.current_index]["response"] == 1 and \
-                    reponse != self.responses_dict[self.current_index]["response"]:
+            elif self.responses_dict[self.current_index]["response"] == 1 and reponse != 1:
                 self.choice_2.setStyleSheet("color: white; background-color: red")
             else:
                 self.choice_2.setStyleSheet("")
+        except KeyError:
+            self.choice_2.setStyleSheet("")
+            self.setWindowTitle(f"Question numéro: {self.current_index + 1} - "
+                                f"Vous n'avez pas répondu à cette question")
 
+        try:
             if reponse == 2:
                 self.choice_3.setStyleSheet("color: white; background-color: green")
-            elif self.responses_dict[self.current_index]["response"] == 2 and \
-                    reponse != self.responses_dict[self.current_index]["response"]:
+            elif self.responses_dict[self.current_index]["response"] == 2 and reponse != 2:
                 self.choice_3.setStyleSheet("color: white; background-color: red")
             else:
                 self.choice_3.setStyleSheet("")
+        except KeyError:
+            self.choice_3.setStyleSheet("")
+            self.setWindowTitle(f"Question numéro: {self.current_index + 1} - "
+                                f"Vous n'avez pas répondu à cette question")
 
+        try:
             if reponse == 3:
                 self.choice_4.setStyleSheet("color: white; background-color: green")
-            elif self.responses_dict[self.current_index]["response"] == 3 and \
-                    reponse != self.responses_dict[self.current_index]["response"]:
+            elif self.responses_dict[self.current_index]["response"] == 3 and reponse != 3:
                 self.choice_4.setStyleSheet("color: white; background-color: red")
             else:
                 self.choice_4.setStyleSheet("")
-        except Exception as e:
-            print(e)
+        except KeyError:
+            self.choice_4.setStyleSheet("")
+            self.setWindowTitle(f"Question numéro: {self.current_index + 1} - "
+                                f"Vous n'avez pas répondu à cette question")
 
     def config_btns(self):
         """ Enable or disable buttons according to the current index """
@@ -1212,4 +1234,5 @@ class ResultDetailsWindow(QWidget):
     def closeEvent(self, a0: QCloseEvent):
         """ Close Event """
         #self.master.show()
-        self.master.question_win = None
+        self.master.view_details_btn.setEnabled(True)
+        self.master.details_win = None
