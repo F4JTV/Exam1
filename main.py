@@ -18,12 +18,12 @@ if __name__ == "__main__":
     app.installTranslator(translator)
 
     # Load Style
-    """try:
+    try:
         with open("./style/Combinear.qss", "r", encoding="utf-8") as style:
             qss = style.read()
             app.setStyleSheet(qss)
     except FileNotFoundError:
-        pass"""
+        pass
 
     # Load fonts
     QFontDatabase.addApplicationFont("./font/Lato-Regular.ttf")
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     splash = QSplashScreen(QPixmap("./images/logocnfra2004-36k.JPG"))
     splash.show()
 
-    window = MainWindow()
+    window = MainWindow(app)
     window.setWindowOpacity(0.0)
     splash.finish(window)
     window.show()

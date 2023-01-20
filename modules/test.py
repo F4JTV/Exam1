@@ -131,7 +131,11 @@ class TestLauncherWindow(QWidget):
         self.define_choice_layout.addWidget(self.serie_detail_label)
 
         self.themes_toolbox = QToolBox()
-        self.free_choice_layout.addWidget(self.themes_toolbox)
+        self.themes_grp = QGroupBox()
+        self.themes_layout = QVBoxLayout()
+        self.themes_layout.addWidget(self.themes_toolbox)
+        self.themes_grp.setLayout(self.themes_layout)
+        self.free_choice_layout.addWidget(self.themes_grp)
 
         self.themes_checkbox_layout = QHBoxLayout()
         self.free_choice_layout.addLayout(self.themes_checkbox_layout)
@@ -904,10 +908,17 @@ class ResultWindow(QWidget):
         self.result_table.verticalHeader().setVisible(False)
         self.result_table.setAlternatingRowColors(True)
 
+        self.result_table.clicked.connect(lambda: self.open_selected_question(self.result_table.currentIndex().row()))
         self.view_details_btn.clicked.connect(self.display_details)
 
         self.make_result()
         self.init_table()
+
+    def open_selected_question(self, index):
+        """ display the question for the given index """
+        if self.details_win is not None:
+            self.details_win.current_index = index
+            self.details_win.display_question()
 
     def display_details(self):
         """ Display the detail result Window """
@@ -1144,7 +1155,6 @@ class ResultDetailsWindow(QWidget):
         """ Display the next question """
         self.current_index += 1
         self.display_question()
-        self.index_combo.setCurrentIndex(self.current_index)
         self.adjustSize()
         # self.setFixedSize(self.width(), self.height())
 
@@ -1152,7 +1162,6 @@ class ResultDetailsWindow(QWidget):
         """ Display the previous question """
         self.current_index -= 1
         self.display_question()
-        self.index_combo.setCurrentIndex(self.current_index)
         self.adjustSize()
         # self.setFixedSize(self.width(), self.height())
 
@@ -1186,6 +1195,7 @@ class ResultDetailsWindow(QWidget):
         else:
             self.comment_label.setText(f"{commentaire}\n{cours}")
 
+        self.index_combo.setCurrentIndex(self.current_index)
         self.comment_label.clicked.disconnect()
         self.comment_label.clicked.connect(lambda: webbrowser.open(cours))
         self.setWindowTitle(f"Question numéro: {self.current_index + 1}")

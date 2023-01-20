@@ -8,7 +8,7 @@ from PyQt5.QtCore import QTimer, Qt, QSize
 from PyQt5.QtGui import QIcon, QFont, QCloseEvent
 from PyQt5.QtWidgets import (QMainWindow, QMenuBar, QMenu,
                              QAction, QHBoxLayout, QWidget,
-                             QVBoxLayout, QToolButton)
+                             QVBoxLayout, QToolButton, QApplication)
 
 from modules.users_management import UsersManagementWindow
 from modules.errors_management import ErrorsManagementWindow
@@ -31,8 +31,8 @@ MAIN_BTN_SIZE = QSize(125, 170)
 class MainWindow(QMainWindow):
     """ Main Window """
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, app):
+        super().__init__()
 
         # ### Main Window config
         self.setFixedSize(WIDTH, HEIGHT)
@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
         self.all_questions_win = None
         self.contribute_win = None
         self.result_win = None
+        self.app = app
 
         # ### Central Widget
         self.central_widget = QWidget(self)
@@ -67,11 +68,30 @@ class MainWindow(QMainWindow):
         # noinspection PyUnresolvedReferences
         self.lesson_action.triggered.connect(lambda: webbrowser.open(f"file://{pdf_path}"))
 
+        self.skin_menu = QMenu("Skins")
+        self.ubuntu_skin_action = QAction("Ubuntu")
+        self.macos_skin_action = QAction("MacOS")
+        self.default_skin_action = QAction("Défaut")
+        self.dark_skin_action = QAction("Dark")
+        self.skin_menu.addActions([self.ubuntu_skin_action,
+                                   self.macos_skin_action,
+                                   self.default_skin_action,
+                                   self.dark_skin_action])
+        # noinspection PyUnresolvedReferences
+        self.ubuntu_skin_action.triggered.connect(lambda: self.change_skin("Ubuntu"))
+        # noinspection PyUnresolvedReferences
+        self.macos_skin_action.triggered.connect(lambda: self.change_skin("MacOS"))
+        # noinspection PyUnresolvedReferences
+        self.default_skin_action.triggered.connect(lambda: self.change_skin("Défaut"))
+        # noinspection PyUnresolvedReferences
+        self.dark_skin_action.triggered.connect(lambda: self.change_skin("Dark"))
+
         self.about_action = QAction("A propos")
         # noinspection PyUnresolvedReferences
         self.about_action.triggered.connect(lambda: print("A propos"))
 
         self.menu_bar.addMenu(self.software_menu)
+        self.menu_bar.addMenu(self.skin_menu)
         self.menu_bar.addAction(self.about_action)
 
         # ### Main Layout
@@ -179,6 +199,38 @@ class MainWindow(QMainWindow):
         self.opacity_timer_close.setInterval(10)
         # noinspection PyUnresolvedReferences
         self.opacity_timer_close.timeout.connect(self.down_opacity)
+
+    def change_skin(self, skin_name):
+        try:
+            if skin_name == "Ubuntu":
+                try:
+                    with open("./style/Ubuntu.qss", "r", encoding="utf-8") as style:
+                        qss = style.read()
+                        self.app.setStyleSheet(qss)
+                except FileNotFoundError:
+                    pass
+
+            elif skin_name == "MacOS":
+                try:
+                    with open("./style/MacOS.qss", "r", encoding="utf-8") as style:
+                        qss = style.read()
+                        self.app.setStyleSheet(qss)
+                except FileNotFoundError:
+                    pass
+
+            elif skin_name == "Défaut":
+                self.app.setStyleSheet("")
+
+            elif skin_name == "Dark":
+                try:
+                    with open("./style/Combinear.qss", "r", encoding="utf-8") as style:
+                        qss = style.read()
+                        self.app.setStyleSheet(qss)
+                except FileNotFoundError:
+                    pass
+
+        except Exception as e:
+            print(e)
 
     def disable_buttons(self):
         """ Disable all toolbuttons """

@@ -208,7 +208,7 @@ class QuestionWindow(QWidget):
         self.current_index = index
 
         # ### Window config
-        self.setFixedSize(QSize(820, 800))
+        self.setFixedSize(QSize(840, 800))
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle(f"Question numéro: {self.num}")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
