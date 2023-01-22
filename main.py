@@ -3,7 +3,7 @@
 """ Exam'1 for French HAM Radio Certificate Training """
 from PyQt5.QtCore import QTranslator, QLocale, QLibraryInfo
 from PyQt5.QtGui import QFontDatabase, QPixmap
-from PyQt5.QtWidgets import QApplication, QSplashScreen
+from PyQt5.QtWidgets import QSplashScreen
 
 from modules.main_ui import *
 

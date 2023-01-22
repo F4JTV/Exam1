@@ -247,6 +247,10 @@ class TestLauncherWindow(QWidget):
         """ Launch the test """
         try:
             candidat = self.users_combo.currentText()
+            if candidat == "":
+                display_error(self, "Vous devez d'abord créer un candidat")
+                return
+
             themes = []
             if self.free_choice_frame.isVisible():
                 self.theme_type = 0
@@ -971,12 +975,21 @@ class ResultWindow(QWidget):
     def make_result(self):
         """ Calculate the average and display it """
         try:
+            nb_quest_by_theme = dict()
             points = 0
+            themes_result_dict = dict()
+
             for question in self.questions_list:
+                if question["themeNum"] not in themes_result_dict.keys():
+                    themes_result_dict[question["themeNum"]] = 0
+                if question["themeNum"] not in nb_quest_by_theme.keys():
+                    nb_quest_by_theme[question["themeNum"]] = 0
+                nb_quest_by_theme[question["themeNum"]] += 1
                 index_question = self.questions_list.index(question)
                 if index_question in self.responses_dict.keys():
                     if self.responses_dict[index_question]["response"] == question["reponse"]:
                         points += 1
+                        themes_result_dict[question["themeNum"]] += 1
 
             average_int = (points * 20) // int(self.number_of_questions)
             average_float = (points * 20) / int(self.number_of_questions)
@@ -991,6 +1004,9 @@ class ResultWindow(QWidget):
                 self.secondary_label.setText("Désolé, vous avez échoué à l'épreuve.")
             else:
                 self.secondary_label.setText("Félicitation, vous avez réussis l'épreuve.")
+
+            for key, value in themes_result_dict.items():
+                print(f"{THEMES_DICT[key]}: {value}/{nb_quest_by_theme[key]}")
 
         except Exception as e:
             print(e)
