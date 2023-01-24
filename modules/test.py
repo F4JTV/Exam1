@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QGroupBox,
                              QCheckBox, QProgressBar, QButtonGroup,
                              QTableWidget, QTableWidgetItem, QHeaderView,
                              QScrollArea, QGridLayout)
+from PyQt5.QtChart import *
 
 from modules.users_management import UsersListWindow
 from modules.contants import *
@@ -23,6 +24,7 @@ TIME_DICT = {"5 minutes": 5,
              "60 minutes": 60,
              "75 minutes": 75,
              "90 minutes - Technique aménagée": 90}
+
 
 
 class TestLauncherWindow(QWidget):
@@ -877,7 +879,7 @@ class ResultWindow(QWidget):
         self.details_win = None
 
         # #################### Window config
-        self.setFixedSize(400, 500)
+        # self.setFixedSize(400, 500)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
         self.setWindowTitle("Résultat de l'épreuve")
         self.setWindowIcon(QIcon("./images/logocnfra80x80.jpg"))
@@ -890,11 +892,15 @@ class ResultWindow(QWidget):
         self.main_label = QLabel()
         self.secondary_label = QLabel("Félicitation, vous avez réussis l'épreuve.")
         self.result_table = QTableWidget()
+        self.chart = QChart()
+        self.chart.setAnimationOptions(QChart.SeriesAnimations)
+        self.chart_view = QChartView(self.chart)
         self.view_details_btn = QPushButton("Voir les résultats en détail")
 
         self.main_layout.addWidget(self.main_label, 0, Qt.AlignCenter)
         self.main_layout.addWidget(self.secondary_label, 0, Qt.AlignCenter)
         self.main_layout.addWidget(self.result_table)
+        self.main_layout.addWidget(self.chart_view)
         self.main_layout.addWidget(self.view_details_btn)
 
         main_label_font = self.main_label.font()
@@ -1005,8 +1011,23 @@ class ResultWindow(QWidget):
             else:
                 self.secondary_label.setText("Félicitation, vous avez réussis l'épreuve.")
 
+            serie = QHorizontalBarSeries()
             for key, value in themes_result_dict.items():
+                set0 = QBarSet(THEMES_DICT[key])
+                set0.append(value)
+                serie.append(set0)
+
                 print(f"{THEMES_DICT[key]}: {value}/{nb_quest_by_theme[key]}")
+
+            self.chart.addSeries(serie)
+            axisX = QValueAxis()
+            axisX.setRange(0, 2)
+
+            axisY = QBarCategoryAxis()
+            axisY.append("Test")
+
+            self.chart.addAxis(axisX, Qt.AlignBottom)
+            self.chart.addAxis(axisY, Qt.AlignLeft)
 
         except Exception as e:
             print(e)
